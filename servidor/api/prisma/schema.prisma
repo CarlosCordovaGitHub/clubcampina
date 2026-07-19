@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoMiembro {
+  ACTIVO
+  SUSPENDIDO
+  INACTIVO
+}
+
+enum TipoMembresia {
+  PLENA
+  FAMILIAR
+  JUVENIL
+  CORPORATIVA
+}
+
+enum TipoVehiculo {
+  AUTOMOVIL
+  CAMIONETA
+  MOTOCICLETA
+  OTRO
+}
+
+enum EstadoVehiculo {
+  ACTIVO
+  INACTIVO
+}
+
+enum TipoZona {
+  GENERAL
+  VIP
+  DISCAPACITADOS
+  MOTOS
+}
+
+enum EstadoZona {
+  LIBRE
+  OCUPADA
+  FUERA_DE_SERVICIO
+}
+
+enum TipoEventoAcceso {
+  INGRESO
+  SALIDA
+}
+
+enum ResultadoEvento {
+  AUTORIZADO
+  RECHAZADO
+  ALERTA
+}
+
+enum RolUsuario {
+  ADMIN
+  OPERADOR
+  CONSULTA
+}
+
+model Miembro {
+  id                 String        @id @default(uuid())
+  nombre             String
+  documentoIdentidad String        @unique @map("documento_identidad")
+  tipoMembresia      TipoMembresia @map("tipo_membresia")
+  estado             EstadoMiembro @default(ACTIVO)
+  vehiculos          Vehiculo[]
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  @@map("miembros")
+}
+
+model Vehiculo {
+  id        String         @id @default(uuid())
+  placa     String         @unique
+  marca     String?
+  modelo    String?
+  tipo      TipoVehiculo   @default(AUTOMOVIL)
+  estado    EstadoVehiculo @default(ACTIVO)
+  miembro   Miembro        @relation(fields: [miembroId], references: [id], onDelete: Cascade)
+  miembroId String         @map("miembro_id")
+  eventos   EventoAcceso[]
+  zonaActual ZonaParqueadero?
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@map("vehiculos")
+}
+
+model ZonaParqueadero {
+  id               String         @id @default(uuid())
+  codigo           String         @unique
+  tipo             TipoZona       @default(GENERAL)
+  estado           EstadoZona     @default(LIBRE)
+  vehiculoActual   Vehiculo?      @relation(fields: [vehiculoActualId], references: [id], onDelete: SetNull)
+  vehiculoActualId String?        @unique @map("vehiculo_actual_id")
+  eventos          EventoAcceso[]
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  @@map("zonas_parqueadero")
+}
+
+model EventoAcceso {
+  id             String           @id @default(uuid())
+  tipo           TipoEventoAcceso
+  placaDetectada String           @map("placa_detectada")
+  confianzaOcr   Float?           @map("confianza_ocr")
+  resultado      ResultadoEvento
+  motivo         String?
+  fotoUrl        String?          @map("foto_url")
+  vehiculo       Vehiculo?        @relation(fields: [vehiculoId], references: [id], onDelete: SetNull)
+  vehiculoId     String?          @map("vehiculo_id")
+  zona           ZonaParqueadero? @relation(fields: [zonaId], references: [id], onDelete: SetNull)
+  zonaId         String?          @map("zona_id")
+  operador       Usuario?         @relation(fields: [operadorId], references: [id], onDelete: SetNull)
+  operadorId     String?          @map("operador_id")
+  timestamp      DateTime         @default(now())
+
+  @@index([timestamp])
+  @@index([placaDetectada])
+  @@map("eventos_acceso")
+}
+
+model Usuario {
+  id           String         @id @default(uuid())
+  nombre       String
+  email        String         @unique
+  passwordHash String         @map("password_hash")
+  rol          RolUsuario     @default(OPERADOR)
+  eventos      EventoAcceso[]
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  @@map("usuarios")
+}

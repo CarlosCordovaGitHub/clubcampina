@@ -1,0 +1,8 @@
+{
+  "name": "club-campina-servidor",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "api"
+  ]
+}

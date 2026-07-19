@@ -1,0 +1,33 @@
+# Dependencias de desarrollo local: Postgres + Redis.
+# El stack completo para despliegue está en docker-compose.prod.yml.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: campina-postgres
+    environment:
+      POSTGRES_USER: campina
+      POSTGRES_PASSWORD: campina_dev
+      POSTGRES_DB: club_campina
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U campina -d club_campina"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: campina-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

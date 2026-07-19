@@ -1,0 +1,21 @@
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# uploads / fotos guardadas en dev
+servidor/api/uploads/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
