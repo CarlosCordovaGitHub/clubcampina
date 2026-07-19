@@ -29,7 +29,7 @@ def get_reader():
     return easyocr.Reader(["en"], gpu=False, verbose=False)
 
 
-def _normalize(raw: str) -> str | None:
+def normalize_plate(raw: str) -> str | None:
     """Limpia una lectura cruda y trata de encajarla al formato de placa."""
     text = re.sub(r"[^A-Z0-9]", "", raw.upper())
     if len(text) < 5 or len(text) > 8:
@@ -64,7 +64,7 @@ def recognize_plate(
         results = reader.readtext(img, allowlist=ALLOWLIST, detail=1)
         for bbox, raw_text, conf in results:
             fallback_conf = max(fallback_conf, float(conf))
-            plate = _normalize(raw_text)
+            plate = normalize_plate(raw_text)
             if plate and conf > best[1]:
                 xs = [int(p[0]) for p in bbox]
                 ys = [int(p[1]) for p in bbox]

@@ -20,10 +20,10 @@ modo que un pico de reconocimiento nunca afecte la lógica de negocio.
                         ┌───────────▼──────────────┐   HTTP interno   ┌────────────────────┐
                         │  api (NestJS)            │─────────────────►│ vision-engine      │
                         │  · auth JWT + roles      │  POST /plate/    │ (FastAPI)          │
-                        │  · miembros / vehículos  │      recognize   │ · OpenCV preproc.  │
-                        │  · zonas / eventos       │                  │ · EasyOCR          │
-                        │  · gateway WS /monitoreo │                  └────────────────────┘
-                        └─────┬──────────────┬─────┘
+                        │  · miembros / vehículos  │      recognize   │ · fast-alpr (ALPR  │
+                        │  · zonas / eventos       │                  │   dedicado, ONNX)  │
+                        │  · gateway WS /monitoreo │                  │ · EasyOCR fallback │
+                        └─────┬──────────────┬─────┘                  └────────────────────┘
                               │              │ pub/sub + cache zona:{id}:estado
                     ┌─────────▼───┐   ┌──────▼──────┐
                     │ PostgreSQL  │   │   Redis     │
@@ -121,11 +121,14 @@ documento (bastaría cambiar la base de `vision-engine` por una imagen CUDA).
 
 ## Limitaciones conocidas y puntos de extensión
 
-- **OCR genérico**: EasyOCR no es un ALPR entrenado; rinde bien con fotos
-  razonablemente controladas. Mejora futura: modelo dedicado (YOLO+CRNN) o
-  servicio ALPR comercial — solo habría que reemplazar
-  `vision-engine/app/services/ocr_engine.py` (o el servicio completo, el
-  contrato HTTP `POST /plate/recognize` es la frontera).
+- **Reconocimiento**: el backend por defecto es **fast-alpr**, un ALPR dedicado
+  (detector YOLOv9 de placas + OCR entrenado en matrículas, ONNX/CPU, ~30 ms por
+  foto). Ignora textos ajenos a la placa y tolera ángulo y poca luz mucho mejor
+  que un OCR genérico. EasyOCR queda como respaldo: se usa automáticamente si el
+  detector no encuentra placa (fotos muy cerradas), o como backend único con
+  `VISION_BACKEND=easyocr`. Para exigencias mayores (placas en movimiento,
+  noche, clima), el contrato HTTP `POST /plate/recognize` sigue siendo la
+  frontera para conectar un servicio ALPR comercial.
 - **Reconocimiento facial**: entraría como microservicio hermano de
   `vision-engine`, con su propio cliente análogo a `vision-client/` en la API.
 - **Hardware real (cámaras/barreras)**: la apertura es hoy un evento lógico; un

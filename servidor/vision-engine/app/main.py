@@ -4,18 +4,25 @@ Se comunica con el motor principal (NestJS) solo por HTTP: un pico de carga aqu�
 no afecta la lógica de negocio, y se puede escalar/reemplazar por separado.
 """
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
 from app.routers import plate
-from app.services.ocr_engine import get_reader
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Carga el modelo EasyOCR al arrancar (no en la primera petición)
-    get_reader()
+    # Carga los modelos al arrancar (no en la primera petición)
+    if os.getenv("VISION_BACKEND", "fast_alpr") == "fast_alpr":
+        from app.services.alpr_engine import get_alpr
+
+        get_alpr()
+    else:
+        from app.services.ocr_engine import get_reader
+
+        get_reader()
     yield
 
 

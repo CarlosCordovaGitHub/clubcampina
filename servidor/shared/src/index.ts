@@ -175,6 +175,8 @@ export interface ReconocimientoPlaca {
   confidence: number;
   bbox: [number, number, number, number] | null;
   processing_ms: number;
+  /** Backend que produjo la lectura: fast_alpr | easyocr | easyocr-fallback */
+  backend?: string;
 }
 
 // ── Eventos WebSocket (namespace /monitoreo) ────────────────────────
