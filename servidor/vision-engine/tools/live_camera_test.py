@@ -12,16 +12,16 @@ Uso:
     python tools/live_camera_test.py --source 1
     python tools/live_camera_test.py --source rtsp://usuario:clave@192.168.1.50/stream1
 
-    # Contra el motor de visión del stack Docker de producción
-    python tools/live_camera_test.py --url http://localhost:8080/api/v1/plate-passthrough
-
 Controles: 'q' o Esc para salir. Cada `--interval` segundos se envía el
-cuadro actual al motor de visión; el resultado se dibuja sobre el video en
+cuadro actual al motor de visión EN UN HILO APARTE, para que el video nunca
+se congele esperando la respuesta; el resultado se dibuja sobre el video en
 vivo hasta la siguiente lectura.
 """
 
 import argparse
+import threading
 import time
+from datetime import datetime
 
 import cv2
 import requests
@@ -37,6 +37,51 @@ def color_por_confianza(conf: float) -> tuple[int, int, int]:
     if conf >= 0.5:
         return AMBAR
     return ROJO
+
+
+class EstadoLectura:
+    """Compartido entre el hilo de red y el loop de video; protegido por lock."""
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.texto = "esperando lectura…"
+        self.bbox = None
+        self.color = AMBAR
+        self.enviando = False
+
+
+def reconocer_en_hilo(url: str, frame_jpg: bytes, estado: EstadoLectura):
+    hora = datetime.now().strftime("%H:%M:%S")
+    try:
+        resp = requests.post(
+            url,
+            files={"image": ("frame.jpg", frame_jpg, "image/jpeg")},
+            timeout=8,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        placa = data.get("plate_text")
+        conf = data.get("confidence", 0.0)
+        backend = data.get("backend", "?")
+        ms = data.get("processing_ms", "?")
+        with estado.lock:
+            estado.bbox = data.get("bbox")
+            estado.color = color_por_confianza(conf)
+            if placa:
+                estado.texto = f"{placa}  {conf*100:.0f}%  [{backend}, {ms}ms]"
+                print(f"[{hora}] {placa}  conf={conf*100:.0f}%  backend={backend}  {ms}ms", flush=True)
+            else:
+                estado.texto = f"sin lectura  (mejor intento {conf*100:.0f}%)"
+                print(f"[{hora}] sin lectura  (mejor intento {conf*100:.0f}%)", flush=True)
+    except requests.RequestException as e:
+        with estado.lock:
+            estado.texto = f"error llamando al motor de visión: {e}"
+            estado.color = ROJO
+            estado.bbox = None
+        print(f"[{hora}] error: {e}", flush=True)
+    finally:
+        with estado.lock:
+            estado.enviando = False
 
 
 def main():
@@ -59,18 +104,25 @@ def main():
     )
     args = parser.parse_args()
 
-    source = int(args.source) if args.source.isdigit() else args.source
-    cap = cv2.VideoCapture(source)
+    if args.source.isdigit():
+        # En Windows, abrir por índice sin backend explícito falla en muchos
+        # equipos ("can't be used to capture by index"); DSHOW sí funciona.
+        cap = cv2.VideoCapture(int(args.source), cv2.CAP_DSHOW)
+    else:
+        cap = cv2.VideoCapture(args.source)  # URL RTSP/HTTP de una cámara IP
     if not cap.isOpened():
         raise SystemExit(f"No se pudo abrir la cámara/fuente: {args.source}")
+
+    # Buffer de 1: si no se drena tan rápido como llegan cuadros (típico con
+    # iVCam por WiFi), DirectShow acumula frames viejos y el video se atrasa
+    # cada vez más ("lag" creciente). Con buffer 1 siempre se lee el más reciente.
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     print(f"Cámara abierta. Enviando lecturas a {args.url} cada {args.interval}s.")
     print("Presiona 'q' o Esc en la ventana de video para salir.")
 
+    estado = EstadoLectura()
     ultimo_envio = 0.0
-    ultimo_texto = "esperando lectura…"
-    ultimo_bbox = None
-    ultimo_color = AMBAR
 
     try:
         while True:
@@ -81,40 +133,30 @@ def main():
                 continue
 
             ahora = time.time()
-            if ahora - ultimo_envio >= args.interval:
+            with estado.lock:
+                puede_enviar = not estado.enviando
+            if puede_enviar and ahora - ultimo_envio >= args.interval:
                 ultimo_envio = ahora
                 ok_jpg, buf = cv2.imencode(".jpg", frame)
                 if ok_jpg:
-                    try:
-                        resp = requests.post(
-                            args.url,
-                            files={"image": ("frame.jpg", buf.tobytes(), "image/jpeg")},
-                            timeout=5,
-                        )
-                        resp.raise_for_status()
-                        data = resp.json()
-                        placa = data.get("plate_text")
-                        conf = data.get("confidence", 0.0)
-                        backend = data.get("backend", "?")
-                        ms = data.get("processing_ms", "?")
-                        ultimo_bbox = data.get("bbox")
-                        ultimo_color = color_por_confianza(conf)
-                        if placa:
-                            ultimo_texto = f"{placa}  {conf*100:.0f}%  [{backend}, {ms}ms]"
-                        else:
-                            ultimo_texto = f"sin lectura  (mejor intento {conf*100:.0f}%)"
-                    except requests.RequestException as e:
-                        ultimo_texto = f"error llamando al motor de visión: {e}"
-                        ultimo_color = ROJO
-                        ultimo_bbox = None
+                    with estado.lock:
+                        estado.enviando = True
+                    threading.Thread(
+                        target=reconocer_en_hilo,
+                        args=(args.url, buf.tobytes(), estado),
+                        daemon=True,
+                    ).start()
 
-            if ultimo_bbox:
-                x1, y1, x2, y2 = ultimo_bbox
-                cv2.rectangle(frame, (x1, y1), (x2, y2), ultimo_color, 3)
+            with estado.lock:
+                texto, bbox, color = estado.texto, estado.bbox, estado.color
+
+            if bbox:
+                x1, y1, x2, y2 = bbox
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 3)
 
             cv2.rectangle(frame, (0, 0), (frame.shape[1], 40), (20, 20, 20), -1)
             cv2.putText(
-                frame, ultimo_texto, (10, 27),
+                frame, texto, (10, 27),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA,
             )
 

@@ -30,8 +30,8 @@ export class CrearVisitanteDto {
       : value,
   )
   @IsString()
-  @Matches(/^[A-Z]{3}[0-9]{2}[0-9A-Z]$/, {
-    message: 'placa debe tener formato ABC123 o ABC12D',
+  @Matches(/^[A-Z]{3}([0-9]{4}|[0-9]{2}[0-9A-Z])$/, {
+    message: 'placa debe tener formato ABC1234 (Ecuador) o ABC123/ABC12D (Colombia)',
   })
   placa!: string;
 

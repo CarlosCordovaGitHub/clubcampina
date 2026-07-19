@@ -11,8 +11,12 @@ from functools import lru_cache
 
 import numpy as np
 
-# Placa colombiana: 3 letras + 3 dígitos (autos) o 3 letras + 2 dígitos + letra (motos)
-PLATE_RE = re.compile(r"[A-Z]{3}[0-9]{2}[0-9A-Z]")
+# Soporta placa ecuatoriana (3 letras + 4 dígitos, ej. "ABC-1234") y
+# colombiana (3 letras + 3 alfanumérico, ej. "ABC123"/"ABC12D"). El patrón de
+# 7 caracteres va primero: buscando con .search() en una cadena de 7 dígitos
+# válidos, si el de 6 fuera primero encajaría igual (como substring) y
+# truncaría el último carácter — justo el bug que causaba lecturas cortadas.
+PLATE_RE = re.compile(r"[A-Z]{3}[0-9]{4}|[A-Z]{3}[0-9]{2}[0-9A-Z]")
 
 # Confusiones típicas del OCR cuando esperamos dígitos
 DIGIT_FIXES = str.maketrans({"O": "0", "Q": "0", "I": "1", "L": "1", "Z": "2", "S": "5", "B": "8"})
@@ -30,24 +34,29 @@ def get_reader():
 
 
 def normalize_plate(raw: str) -> str | None:
-    """Limpia una lectura cruda y trata de encajarla al formato de placa."""
+    """Limpia una lectura cruda y trata de encajarla al formato de placa.
+
+    Usa fullmatch (no search) sobre cada ventana candidata: con search, una
+    placa ecuatoriana de 7 caracteres calzaría igual como substring del
+    patrón colombiano de 6, truncando el último dígito. Se prueban ventanas
+    de 7 antes que de 6 en toda la cadena, cada una cruda y luego con
+    corrección de confusiones típicas del OCR (O/0, I/1, etc.).
+    """
     text = re.sub(r"[^A-Z0-9]", "", raw.upper())
     if len(text) < 5 or len(text) > 8:
         return None
 
-    match = PLATE_RE.search(text)
-    if match:
-        return match.group(0)
+    def corregir(chunk: str) -> str:
+        return chunk[:3].translate(LETTER_FIXES) + chunk[3:].translate(DIGIT_FIXES)
 
-    # Intento de corrección posicional sobre los últimos 6 caracteres plausibles
-    for start in range(0, len(text) - 5):
-        chunk = text[start : start + 6]
-        letters = chunk[:3].translate(LETTER_FIXES)
-        digits = chunk[3:5].translate(DIGIT_FIXES)
-        last = chunk[5]
-        candidate = letters + digits + last
-        if PLATE_RE.fullmatch(candidate):
-            return candidate
+    for tam in (7, 6):
+        for start in range(0, len(text) - tam + 1):
+            chunk = text[start : start + tam]
+            if PLATE_RE.fullmatch(chunk):
+                return chunk
+            candidato = corregir(chunk)
+            if PLATE_RE.fullmatch(candidato):
+                return candidato
     return None
 
 

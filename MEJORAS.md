@@ -9,20 +9,48 @@ EasyOCR como respaldo. Lo que sigue, en orden aproximado de prioridad:
 
 - [x] ~~Reconstruir la imagen Docker de `vision-engine`~~ — hecho: el stack de
   producción ya corre fast-alpr (verificado con un ingreso real por Nginx).
-- [ ] **Probar con fotos y cámara reales**: todas las pruebas hasta ahora usan
-  imágenes sintéticas — esta máquina no tiene ninguna cámara física conectada
-  (`Get-PnpDevice -Class Camera` no devuelve nada). Herramientas ya listas
-  para cuando haya una cámara a mano:
-  - `servidor/vision-engine/tools/live_camera_test.py` — apunta una webcam o
-    una cámara IP (celular con app tipo *IP Webcam*/*EpocCam*) directo al
-    motor de visión y muestra la lectura en vivo sobre el video (ver
-    `tools/README.md` para instalar OpenCV con GUI, separado del venv
-    "headless" que usa el contenedor).
+- [x] ~~Probar con cámara real~~ — hecho con iVCam (cámara virtual desde
+  celular) usando `servidor/vision-engine/tools/live_camera_test.py`. Placa
+  real `PCP-6521` (Ecuador) leída correctamente y repetida al 100% de
+  confianza en ~30ms; varias placas más leídas de forma consistente. En el
+  camino se encontraron y corrigieron dos bugs reales (ver "Correcciones
+  encontradas probando con cámara real" más abajo).
+- [ ] **Recolectar más muestras reales de la portería**: la prueba con iVCam
+  fue una validación puntual, no un dataset. Recolectar fotos/video reales
+  en distintas condiciones (día/noche, lluvia, contraluz, vehículos en
+  movimiento) y medir tasa de acierto antes de confiar en el umbral de
+  confianza actual (`OCR_MIN_CONFIDENCE=0.35`). Herramientas disponibles:
+  - `servidor/vision-engine/tools/live_camera_test.py` — cámara/webcam/IP
+    directo al motor de visión, ver `tools/README.md`.
   - Botón **"Usar cámara en vivo"** en Ingreso/Salida de la web — prueba el
-    flujo de negocio completo con la cámara del navegador (celular o laptop).
-  Con cualquiera de las dos, recolectar fotos reales de la portería
-  (día/noche, lluvia, contraluz) y medir tasa de acierto antes de confiar en
-  el umbral de confianza actual (`OCR_MIN_CONFIDENCE=0.35`).
+    flujo de negocio completo (esta parte aún no se probó con hardware real,
+    solo el script aislado).
+
+### Correcciones encontradas probando con cámara real
+
+1. **Formato de placa hardcodeado a Colombia**: `normalize_plate()` (motor de
+   visión) y la validación de los DTOs (`vehiculos/dto.ts`,
+   `visitantes/dto.ts`) solo aceptaban 6 caracteres (`ABC123`). Una placa
+   ecuatoriana real (`ABC1234`, 7 caracteres) se registraba con el último
+   dígito **truncado**, y ni siquiera se podía dar de alta un vehículo con ese
+   formato. Corregido para aceptar ambos formatos (ver `PLATE_RE` en
+   `ocr_engine.py` y las regex de los DTOs) — probado con la placa real del
+   usuario y con casos límite de confusión de caracteres (O/0, I/1).
+2. **Ventana de video se congelaba**: `live_camera_test.py` hacía la llamada
+   HTTP al motor de visión de forma síncrona en el mismo loop que dibuja el
+   video, así que cada segundo la ventana se congelaba mientras esperaba
+   respuesta. Corregido moviendo la llamada a un hilo aparte.
+3. **Recorte de placa sin margen**: `fast-alpr` recorta exactamente al cuadro
+   que devuelve el detector, sin margen; si el detector se queda un poco
+   corto, el OCR recibe la imagen con el borde cortado. Se agregó un padding
+   del 12% alrededor del cuadro detectado (`alpr_engine.py`) antes de pasarlo
+   al OCR — reimplementando el pipeline detección→OCR en vez de usar
+   `alpr.predict()` directo, para poder insertar ese paso.
+4. Se intentó subir a modelos más grandes (`yolo-v9-s-608`, `cct-s-v2`)
+   esperando mejor precisión, pero **el detector más grande no detectaba
+   nada** en imágenes que el modelo pequeño sí leía — se revirtió a
+   `yolo-v9-t-384` + `cct-xs-v1` (los de antes). Si se reintenta usar modelos
+   más grandes, validar primero contra las imágenes de prueba existentes.
 
 ## Seguridad y operación
 
