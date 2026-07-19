@@ -1,5 +1,7 @@
 # Dependencias de desarrollo local: Postgres + Redis.
 # El stack completo para despliegue está en docker-compose.prod.yml.
+name: campina-dev
+
 services:
   postgres:
     image: postgres:16-alpine
