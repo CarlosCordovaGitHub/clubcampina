@@ -9,10 +9,20 @@ EasyOCR como respaldo. Lo que sigue, en orden aproximado de prioridad:
 
 - [x] ~~Reconstruir la imagen Docker de `vision-engine`~~ — hecho: el stack de
   producción ya corre fast-alpr (verificado con un ingreso real por Nginx).
-- [ ] **Probar con fotos reales de vehículos del club**: todas las pruebas se
-  hicieron con imágenes sintéticas. Recolectar fotos reales de la portería
-  (día/noche, lluvia, contraluz) y medir tasa de acierto antes de confiar en el
-  umbral de confianza actual (`OCR_MIN_CONFIDENCE=0.35`).
+- [ ] **Probar con fotos y cámara reales**: todas las pruebas hasta ahora usan
+  imágenes sintéticas — esta máquina no tiene ninguna cámara física conectada
+  (`Get-PnpDevice -Class Camera` no devuelve nada). Herramientas ya listas
+  para cuando haya una cámara a mano:
+  - `servidor/vision-engine/tools/live_camera_test.py` — apunta una webcam o
+    una cámara IP (celular con app tipo *IP Webcam*/*EpocCam*) directo al
+    motor de visión y muestra la lectura en vivo sobre el video (ver
+    `tools/README.md` para instalar OpenCV con GUI, separado del venv
+    "headless" que usa el contenedor).
+  - Botón **"Usar cámara en vivo"** en Ingreso/Salida de la web — prueba el
+    flujo de negocio completo con la cámara del navegador (celular o laptop).
+  Con cualquiera de las dos, recolectar fotos reales de la portería
+  (día/noche, lluvia, contraluz) y medir tasa de acierto antes de confiar en
+  el umbral de confianza actual (`OCR_MIN_CONFIDENCE=0.35`).
 
 ## Seguridad y operación
 

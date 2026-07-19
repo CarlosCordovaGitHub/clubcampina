@@ -1,17 +1,22 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { EventoAcceso } from '@club-campina/shared-types';
 import { useRegistrarAcceso } from '../features/eventos';
 import { BadgeResultado } from '../components/Badge';
 
 type Modo = 'ingreso' | 'salida';
+type Fuente = 'archivo' | 'camara';
 
 export function IngresoSimuladoPage() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [modo, setModo] = useState<Modo>('ingreso');
+  const [fuente, setFuente] = useState<Fuente>('archivo');
   const [archivo, setArchivo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [resultado, setResultado] = useState<EventoAcceso | null>(null);
   const [error, setError] = useState('');
+  const [errorCamara, setErrorCamara] = useState('');
   const [arrastrando, setArrastrando] = useState(false);
   const { ingreso, salida } = useRegistrarAcceso();
   const mutacion = modo === 'ingreso' ? ingreso : salida;
@@ -34,9 +39,54 @@ export function IngresoSimuladoPage() {
     }
   };
 
+  const detenerCamara = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  };
+
+  useEffect(() => {
+    if (fuente !== 'camara') {
+      detenerCamara();
+      return;
+    }
+    setErrorCamara('');
+    // Cámara trasera si es un celular (facingMode 'environment'); en laptop
+    // el navegador simplemente usa la webcam disponible.
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+      .then((stream) => {
+        streamRef.current = stream;
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      })
+      .catch((e) => {
+        setErrorCamara(
+          e instanceof Error
+            ? `No se pudo acceder a la cámara: ${e.message}`
+            : 'No se pudo acceder a la cámara',
+        );
+      });
+    return detenerCamara;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fuente]);
+
+  const capturarDesdeCamera = () => {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      seleccionar(new File([blob], `captura-${Date.now()}.jpg`, { type: 'image/jpeg' }));
+    }, 'image/jpeg', 0.92);
+  };
+
   return (
     <>
-      <h1>Registro de acceso (simulación de cámara)</h1>
+      <h1>Registro de acceso</h1>
       <div className="tarjeta">
         <div className="fila separada">
           <div className="fila">
@@ -64,36 +114,87 @@ export function IngresoSimuladoPage() {
           </button>
         </div>
 
-        <div
-          className={`dropzone ${arrastrando ? 'activo' : ''}`}
-          onClick={() => inputRef.current?.click()}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setArrastrando(true);
-          }}
-          onDragLeave={() => setArrastrando(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setArrastrando(false);
-            seleccionar(e.dataTransfer.files[0]);
-          }}
-        >
-          {preview ? (
-            <img src={preview} alt="Foto seleccionada" />
-          ) : (
-            <p>
-              Arrastra aquí la foto del vehículo (con la placa visible)
-              <br />o haz clic para seleccionarla
-            </p>
-          )}
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(e) => seleccionar(e.target.files?.[0])}
-          />
+        <div className="fila" style={{ marginBottom: '0.75rem' }}>
+          <button
+            className={fuente === 'archivo' ? 'primario' : 'secundario'}
+            onClick={() => setFuente('archivo')}
+          >
+            Subir foto
+          </button>
+          <button
+            className={fuente === 'camara' ? 'primario' : 'secundario'}
+            onClick={() => setFuente('camara')}
+          >
+            Usar cámara en vivo
+          </button>
         </div>
+
+        {fuente === 'archivo' ? (
+          <div
+            className={`dropzone ${arrastrando ? 'activo' : ''}`}
+            onClick={() => inputRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setArrastrando(true);
+            }}
+            onDragLeave={() => setArrastrando(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setArrastrando(false);
+              seleccionar(e.dataTransfer.files[0]);
+            }}
+          >
+            {preview ? (
+              <img src={preview} alt="Foto seleccionada" />
+            ) : (
+              <p>
+                Arrastra aquí la foto del vehículo (con la placa visible)
+                <br />o haz clic para seleccionarla
+              </p>
+            )}
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => seleccionar(e.target.files?.[0])}
+            />
+          </div>
+        ) : (
+          <div>
+            {errorCamara ? (
+              <p style={{ color: 'var(--rojo)' }}>
+                {errorCamara}. En el navegador debes dar permiso de cámara; si
+                estás en un celular, ábrelo con la IP del servidor por HTTPS
+                (o localhost) — Chrome/Safari bloquean la cámara en HTTP para
+                otros hosts.
+              </p>
+            ) : (
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  style={{ width: '100%', maxHeight: 360, borderRadius: 10, background: '#000' }}
+                />
+                <div className="fila" style={{ marginTop: '0.75rem' }}>
+                  <button className="primario" onClick={capturarDesdeCamera}>
+                    Capturar foto
+                  </button>
+                </div>
+              </>
+            )}
+            {preview && (
+              <div style={{ marginTop: '1rem' }}>
+                <p style={{ color: 'var(--gris-600)', fontSize: '0.85rem' }}>
+                  Última captura:
+                </p>
+                <img src={preview} alt="Captura de cámara" style={{ maxWidth: 280, borderRadius: 8 }} />
+              </div>
+            )}
+          </div>
+        )}
         {error && <p style={{ color: 'var(--rojo)' }}>{error}</p>}
       </div>
 

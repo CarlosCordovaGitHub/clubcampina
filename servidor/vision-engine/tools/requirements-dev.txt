@@ -1,0 +1,9 @@
+# Solo para tools/live_camera_test.py — NO instalar en el venv del servicio
+# ni en la imagen Docker (esa usa opencv-python-headless a propósito, sin GUI).
+#
+# El paquete opencv-python (con GUI) reemplaza a opencv-python-headless en el
+# mismo entorno porque ambos exponen el módulo `cv2`; por eso se instala en un
+# venv aparte o se acepta que el venv principal deje de ser "headless puro"
+# mientras se hacen estas pruebas locales.
+opencv-python>=4.10
+requests>=2.31
