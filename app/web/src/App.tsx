@@ -7,6 +7,8 @@ import { IngresoSimuladoPage } from './pages/IngresoSimuladoPage';
 import { EventosHistorialPage } from './pages/EventosHistorialPage';
 import { MiembrosPage } from './pages/MiembrosPage';
 import { VehiculosPage } from './pages/VehiculosPage';
+import { VisitantesPage } from './pages/VisitantesPage';
+import { ReportesPage } from './pages/ReportesPage';
 import { LoginPage } from './pages/LoginPage';
 
 function Protegido({ children }: { children: React.ReactNode }) {
@@ -24,6 +26,8 @@ export function App() {
       <Route path="/eventos" element={<Protegido><EventosHistorialPage /></Protegido>} />
       <Route path="/miembros" element={<Protegido><MiembrosPage /></Protegido>} />
       <Route path="/vehiculos" element={<Protegido><VehiculosPage /></Protegido>} />
+      <Route path="/visitantes" element={<Protegido><VisitantesPage /></Protegido>} />
+      <Route path="/reportes" element={<Protegido><ReportesPage /></Protegido>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

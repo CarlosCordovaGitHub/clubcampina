@@ -77,10 +77,33 @@ export interface Vehiculo {
   modelo: string | null;
   tipo: TipoVehiculo;
   estado: EstadoVehiculo;
-  miembroId: string;
-  miembro?: Miembro;
+  miembroId: string | null;
+  miembro?: Miembro | null;
+  visitanteId?: string | null;
+  visitante?: Visitante | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Visitante {
+  id: string;
+  nombre: string;
+  documento: string;
+  telefono: string | null;
+  tiempoMaxHoras: number;
+  activo: boolean;
+  vehiculos?: Vehiculo[];
+  createdAt: string;
+}
+
+/** Visitante enriquecido con su situación actual dentro del parqueadero. */
+export interface VisitanteConEstado extends Visitante {
+  placa: string | null;
+  dentro: boolean;
+  zonaCodigo: string | null;
+  horaIngreso: string | null;
+  /** true si sigue dentro y superó su tiempo máximo */
+  excedido: boolean;
 }
 
 export interface ZonaParqueadero {
@@ -107,6 +130,9 @@ export interface EventoAcceso {
   zona?: ZonaParqueadero | null;
   operadorId: string | null;
   timestamp: string;
+  /** Solo en la respuesta inmediata de ingreso/salida (no persistidos) */
+  ocrBackend?: string | null;
+  ocrBbox?: number[] | null;
 }
 
 export interface UsuarioPublico {
@@ -149,6 +175,15 @@ export interface ActualizarZonaDto {
   estado?: EstadoZona;
 }
 
+export interface CrearVisitanteDto {
+  nombre: string;
+  documento: string;
+  telefono?: string;
+  placa: string;
+  tipoVehiculo?: TipoVehiculo;
+  tiempoMaxHoras?: number;
+}
+
 export interface LoginDto {
   email: string;
   password: string;
@@ -177,6 +212,28 @@ export interface ReconocimientoPlaca {
   processing_ms: number;
   /** Backend que produjo la lectura: fast_alpr | easyocr | easyocr-fallback */
   backend?: string;
+}
+
+// ── Reportes ────────────────────────────────────────────────────────
+
+export interface OcupacionPorHora {
+  hora: number; // 0-23
+  ingresos: number;
+}
+
+export interface FrecuenciaSocio {
+  miembroId: string;
+  nombre: string;
+  ingresos: number;
+}
+
+export interface ResumenReportes {
+  desdeDias: number;
+  totalIngresos: number;
+  totalRechazados: number;
+  totalAlertas: number;
+  ocupacionPorHora: OcupacionPorHora[];
+  frecuenciaSocios: FrecuenciaSocio[];
 }
 
 // ── Eventos WebSocket (namespace /monitoreo) ────────────────────────

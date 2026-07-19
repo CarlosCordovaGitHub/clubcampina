@@ -11,7 +11,7 @@ import { RedisService } from '../cache/redis.service';
 import { ActualizarZonaDto, CrearZonaDto } from './dto';
 
 const INCLUDE_ZONA = {
-  vehiculoActual: { include: { miembro: true } },
+  vehiculoActual: { include: { miembro: true, visitante: true } },
 } satisfies Prisma.ZonaParqueaderoInclude;
 
 @Injectable()

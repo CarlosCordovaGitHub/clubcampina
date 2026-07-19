@@ -84,8 +84,11 @@ model Vehiculo {
   modelo    String?
   tipo      TipoVehiculo   @default(AUTOMOVIL)
   estado    EstadoVehiculo @default(ACTIVO)
-  miembro   Miembro        @relation(fields: [miembroId], references: [id], onDelete: Cascade)
-  miembroId String         @map("miembro_id")
+  // Un vehículo pertenece a un socio O a un visitante temporal
+  miembro     Miembro?   @relation(fields: [miembroId], references: [id], onDelete: Cascade)
+  miembroId   String?    @map("miembro_id")
+  visitante   Visitante? @relation(fields: [visitanteId], references: [id], onDelete: Cascade)
+  visitanteId String?    @map("visitante_id")
   eventos   EventoAcceso[]
   zonaActual ZonaParqueadero?
   createdAt DateTime       @default(now()) @map("created_at")
@@ -126,6 +129,19 @@ model EventoAcceso {
   @@index([timestamp])
   @@index([placaDetectada])
   @@map("eventos_acceso")
+}
+
+model Visitante {
+  id             String     @id @default(uuid())
+  nombre         String
+  documento      String
+  telefono       String?
+  tiempoMaxHoras Int        @default(4) @map("tiempo_max_horas")
+  activo         Boolean    @default(true)
+  vehiculos      Vehiculo[]
+  createdAt      DateTime   @default(now()) @map("created_at")
+
+  @@map("visitantes")
 }
 
 model Usuario {

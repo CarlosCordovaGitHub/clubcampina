@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { sesion } from '../api/client';
 import { useRealtimeMonitoreo } from '../realtime/useRealtime';
@@ -9,12 +10,22 @@ const enlaces = [
   { a: '/eventos', texto: 'Historial' },
   { a: '/miembros', texto: 'Miembros' },
   { a: '/vehiculos', texto: 'Vehículos' },
+  { a: '/visitantes', texto: 'Visitantes' },
+  { a: '/reportes', texto: 'Reportes' },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { conectado, alertas, descartarAlertas } = useRealtimeMonitoreo();
   const usuario = sesion.usuario();
+  const [notif, setNotif] = useState(
+    'Notification' in window ? Notification.permission : 'denied',
+  );
+
+  const pedirNotificaciones = async () => {
+    if (!('Notification' in window)) return;
+    setNotif(await Notification.requestPermission());
+  };
 
   return (
     <div className="layout">
@@ -38,6 +49,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <span className={`punto ${conectado ? 'on' : 'off'}`} />
             {conectado ? 'Monitoreo en vivo' : 'Sin conexión en vivo'}
           </div>
+          {notif === 'default' && (
+            <button onClick={pedirNotificaciones}>
+              Activar notificaciones
+            </button>
+          )}
           <div>{usuario?.nombre}</div>
           <button
             onClick={() => {

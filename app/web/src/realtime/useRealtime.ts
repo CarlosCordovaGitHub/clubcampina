@@ -47,6 +47,14 @@ export function useRealtimeMonitoreo() {
 
     const onAlerta = (payload: PayloadAlerta) => {
       setAlertas((prev) => [payload, ...prev].slice(0, 5));
+      // Notificación nativa al operador (si dio permiso)
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('⚠ Alerta de acceso — Club Campiña', {
+          body: payload.mensaje,
+          icon: '/logo.jpg',
+          tag: 'campina-alerta',
+        });
+      }
     };
 
     socket.on('connect', onConnect);

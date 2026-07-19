@@ -10,6 +10,8 @@ import { ZonasModule } from './zonas/zonas.module';
 import { VisionClientModule } from './vision-client/vision-client.module';
 import { StorageModule } from './storage/storage.module';
 import { EventosAccesoModule } from './eventos-acceso/eventos-acceso.module';
+import { VisitantesModule } from './visitantes/visitantes.module';
+import { ReportesModule } from './reportes/reportes.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
@@ -27,6 +29,8 @@ import { RolesGuard } from './auth/roles.guard';
     VisionClientModule,
     StorageModule,
     EventosAccesoModule,
+    VisitantesModule,
+    ReportesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

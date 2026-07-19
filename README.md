@@ -100,6 +100,9 @@ el historial con la foto.
 | POST | `/eventos-acceso/ingreso` | multipart `imagen` → OCR → decisión → zona → WS |
 | POST | `/eventos-acceso/salida` | multipart `imagen` → libera la zona |
 | GET | `/eventos-acceso` | Historial paginado con filtros |
+| GET | `/eventos-acceso/export.csv` | Exporta el historial filtrado a CSV |
+| POST/GET/DELETE | `/visitantes` | Autorizaciones temporales (placa + tiempo máximo, alerta si excede) |
+| GET | `/reportes/resumen?dias=n` | KPIs, ingresos por hora local, socios frecuentes |
 
 Roles: `ADMIN` (todo), `OPERADOR` (operación diaria), `CONSULTA` (solo lectura).
 Tiempo real: Socket.io en el namespace `/monitoreo`

@@ -5,10 +5,12 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
 import { RolUsuario } from '@club-campina/shared-types';
 import { CurrentUser, Roles, UsuarioJwt } from '../auth/decorators';
 import { EventosAccesoService } from './eventos-acceso.service';
@@ -45,6 +47,22 @@ export class EventosAccesoController {
     @CurrentUser() user?: UsuarioJwt,
   ) {
     return this.eventosService.procesarSalida(validarImagen(imagen), user?.sub);
+  }
+
+  @Get('export.csv')
+  async exportar(
+    @Res() res: Response,
+    @Query('placa') placa?: string,
+    @Query('resultado') resultado?: string,
+    @Query('tipo') tipo?: string,
+  ) {
+    const csv = await this.eventosService.exportarCsv({ placa, resultado, tipo });
+    res
+      .set({
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="eventos-acceso-${new Date().toISOString().slice(0, 10)}.csv"`,
+      })
+      .send(csv);
   }
 
   @Get()

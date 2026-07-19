@@ -44,7 +44,10 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function request<T>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
   const headers = new Headers(init.headers);
   const token = sesion.token();
   if (token) headers.set('Authorization', `Bearer ${token}`);

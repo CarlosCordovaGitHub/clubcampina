@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   EstadoZona,
+  type CrearZonaDto,
   type ZonaParqueadero,
 } from '@club-campina/shared-types';
 import { api } from '../api/client';
@@ -16,6 +17,14 @@ export function useZonasMutations() {
     cambiarEstado: useMutation({
       mutationFn: ({ id, estado }: { id: string; estado: EstadoZona }) =>
         api.zonas.actualizar(id, { estado }),
+      onSuccess: invalidar,
+    }),
+    crear: useMutation({
+      mutationFn: (dto: CrearZonaDto) => api.zonas.crear(dto),
+      onSuccess: invalidar,
+    }),
+    eliminar: useMutation({
+      mutationFn: (id: string) => api.zonas.eliminar(id),
       onSuccess: invalidar,
     }),
   };

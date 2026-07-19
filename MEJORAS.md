@@ -7,11 +7,8 @@ EasyOCR como respaldo. Lo que sigue, en orden aproximado de prioridad:
 
 ## Pendiente inmediato
 
-- [ ] **Reconstruir la imagen Docker de `vision-engine`**: el Dockerfile ya
-  pre-descarga los modelos de fast-alpr, pero la imagen del stack de producción
-  quedó construida antes del cambio. Ejecutar:
-  `docker compose -f docker-compose.prod.yml build vision-engine && docker compose -f docker-compose.prod.yml up -d vision-engine`
-  y verificar que `POST /plate/recognize` responda `"backend": "fast_alpr"`.
+- [x] ~~Reconstruir la imagen Docker de `vision-engine`~~ — hecho: el stack de
+  producción ya corre fast-alpr (verificado con un ingreso real por Nginx).
 - [ ] **Probar con fotos reales de vehículos del club**: todas las pruebas se
   hicieron con imágenes sintéticas. Recolectar fotos reales de la portería
   (día/noche, lluvia, contraluz) y medir tasa de acierto antes de confiar en el
@@ -30,18 +27,22 @@ EasyOCR como respaldo. Lo que sigue, en orden aproximado de prioridad:
   `eventos-acceso` (hoy la cobertura es solo verificación manual end-to-end) y
   un e2e con Supertest contra la API.
 
-## Funciones de producto
+## Funciones de producto — IMPLEMENTADAS
 
-- [ ] **Página de administración de zonas** (crear/eliminar desde la UI; hoy
-  solo se cambia estado — el CRUD completo ya existe en la API).
-- [ ] **Vehículos de visitantes**: registro temporal con placa + tiempo máximo,
-  y alerta si excede la estadía.
-- [ ] **Reportes**: ocupación por franja horaria, frecuencia por socio,
-  exportación CSV del historial.
-- [ ] **Notificaciones**: aviso al operador (push/correo) en eventos ALERTA
-  (placa clonada, socio suspendido intentando entrar).
-- [ ] Mostrar el campo `backend` y el bbox del reconocimiento en la UI de
-  ingreso (útil para diagnosticar lecturas dudosas).
+- [x] **Administración de zonas desde la UI**: crear (ADMIN) y eliminar zonas
+  en el mapa, además del habilitar/deshabilitar existente.
+- [x] **Vehículos de visitantes**: autorización temporal con placa + tiempo
+  máximo (1–24 h); el flujo de ingreso/salida los acepta como titulares; barrido
+  cada 5 min publica alerta WS si exceden la estadía y el listado marca
+  EXCEDIDO en vivo.
+- [x] **Reportes** (`/reportes` en la UI, `GET /api/v1/reportes/resumen`):
+  KPIs, ingresos por hora del día (hora local, `REPORTES_TZ`), socios más
+  frecuentes, y exportación CSV del historial
+  (`GET /api/v1/eventos-acceso/export.csv`).
+- [x] **Notificaciones al operador**: notificaciones nativas del navegador en
+  eventos ALERTA (opt-in con botón "Activar notificaciones") además del banner.
+  *Pendiente si se quiere: canal por correo (requiere SMTP del club).*
+- [x] El resultado del ingreso muestra motor de lectura (`backend`) y bbox.
 
 ## Extensiones de arquitectura (ganchos ya previstos)
 

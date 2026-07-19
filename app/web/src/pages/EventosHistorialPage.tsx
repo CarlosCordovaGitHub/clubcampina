@@ -88,7 +88,12 @@ export function EventosHistorialPage() {
                         ? `${(e.confianzaOcr * 100).toFixed(0)}%`
                         : '—'}
                     </td>
-                    <td>{e.vehiculo?.miembro?.nombre ?? '—'}</td>
+                    <td>
+                      {e.vehiculo?.miembro?.nombre ??
+                        (e.vehiculo?.visitante
+                          ? `Visitante: ${e.vehiculo.visitante.nombre}`
+                          : '—')}
+                    </td>
                     <td>{e.zona?.codigo ?? '—'}</td>
                     <td><BadgeResultado resultado={e.resultado} /></td>
                     <td style={{ maxWidth: 240 }}>{e.motivo ?? ''}</td>

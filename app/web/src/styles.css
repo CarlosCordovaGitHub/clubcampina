@@ -159,4 +159,30 @@ form.formulario label { display: flex; flex-direction: column; gap: 0.3rem; font
 .resultado-evento dd { margin: 0; }
 
 .miniatura { width: 52px; height: 38px; object-fit: cover; border-radius: 6px; }
+
+/* Charts de reportes: una sola serie, un solo tono, marcas finas */
+.chart-columnas { display: flex; align-items: flex-end; gap: 2px; height: 180px; padding-top: 1.2rem; }
+.chart-col { flex: 1; display: flex; flex-direction: column; height: 100%; min-width: 0; }
+.chart-col-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; }
+.chart-barra {
+  width: 100%; max-width: 26px; background: var(--verde);
+  border-radius: 4px 4px 0 0; min-height: 0; transition: background 0.15s ease;
+}
+.chart-barra:hover, .chart-barra-h:hover { background: var(--verde-oscuro); }
+.chart-valor {
+  font-size: 0.75rem; color: var(--gris-600); font-weight: 600;
+  position: absolute; top: -1.1rem;
+}
+.chart-etiqueta { font-size: 0.7rem; color: var(--gris-600); text-align: center; height: 1rem; }
+.chart-tabla-toggle { color: var(--gris-600); font-size: 0.82rem; cursor: pointer; margin-top: 0.75rem; }
+
+.chart-filas { display: flex; flex-direction: column; gap: 0.55rem; }
+.chart-fila { display: grid; grid-template-columns: 180px 1fr; gap: 0.75rem; align-items: center; }
+.chart-fila-nombre { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chart-fila-area { display: flex; align-items: center; gap: 0.5rem; }
+.chart-barra-h {
+  height: 14px; background: var(--verde); border-radius: 0 4px 4px 0;
+  min-width: 3px; transition: background 0.15s ease;
+}
+.chart-fila-valor { font-size: 0.8rem; color: var(--gris-600); font-weight: 600; }
 .vacio { color: var(--gris-600); text-align: center; padding: 2rem 0; }

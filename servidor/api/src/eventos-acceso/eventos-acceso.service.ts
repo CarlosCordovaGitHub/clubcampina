@@ -15,7 +15,7 @@ import { VisionClientService } from '../vision-client/vision-client.service';
 import { ZonasService } from '../zonas/zonas.service';
 
 const INCLUDE_EVENTO = {
-  vehiculo: { include: { miembro: true } },
+  vehiculo: { include: { miembro: true, visitante: true } },
   zona: true,
 } satisfies Prisma.EventoAccesoInclude;
 
@@ -29,6 +29,8 @@ interface ContextoRegistro {
   vehiculoId?: string | null;
   zonaId?: string | null;
   operadorId?: string | null;
+  /** Detalle transitorio del OCR (no se persiste; se devuelve al operador) */
+  ocrExtra?: { backend?: string; bbox: number[] | null };
 }
 
 // Corazón del módulo: orquesta motor de visión → decisión → persistencia → tiempo real.
@@ -78,6 +80,7 @@ export class EventosAccesoService {
       confianzaOcr: ocr.confidence,
       fotoUrl,
       operadorId: operadorId ?? null,
+      ocrExtra: { backend: ocr.backend, bbox: ocr.bbox },
     };
 
     // 1. ¿Se pudo leer una placa con confianza suficiente?
@@ -98,9 +101,10 @@ export class EventosAccesoService {
     }
 
     // 2. ¿La placa pertenece a un vehículo registrado y habilitado?
+    //    (de un socio, o de un visitante con autorización temporal vigente)
     const vehiculo = await this.prisma.vehiculo.findUnique({
       where: { placa: ocr.plate_text },
-      include: { miembro: true, zonaActual: true },
+      include: { miembro: true, visitante: true, zonaActual: true },
     });
     if (!vehiculo) {
       return this.registrar({
@@ -109,7 +113,14 @@ export class EventosAccesoService {
         motivo: 'Placa no registrada en el club',
       });
     }
-    if (vehiculo.estado !== 'ACTIVO' || vehiculo.miembro.estado !== 'ACTIVO') {
+    const motivoPropietario = vehiculo.miembro
+      ? vehiculo.miembro.estado !== 'ACTIVO'
+        ? `Membresía del socio en estado ${vehiculo.miembro.estado}`
+        : null
+      : vehiculo.visitante?.activo
+        ? null
+        : 'Autorización de visitante desactivada';
+    if (vehiculo.estado !== 'ACTIVO' || motivoPropietario) {
       return this.registrar({
         ...base,
         vehiculoId: vehiculo.id,
@@ -117,7 +128,7 @@ export class EventosAccesoService {
         motivo:
           vehiculo.estado !== 'ACTIVO'
             ? 'Vehículo inactivo'
-            : `Membresía del socio en estado ${vehiculo.miembro.estado}`,
+            : motivoPropietario,
       });
     }
 
@@ -193,7 +204,49 @@ export class EventosAccesoService {
     this.logger.log(
       `${ctx.tipo} placa=${ctx.placaDetectada} resultado=${ctx.resultado}`,
     );
-    return evento;
+    return {
+      ...evento,
+      ocrBackend: ctx.ocrExtra?.backend ?? null,
+      ocrBbox: ctx.ocrExtra?.bbox ?? null,
+    };
+  }
+
+  /** Exporta el historial filtrado como CSV (con BOM para Excel). */
+  async exportarCsv(filtros: {
+    placa?: string;
+    resultado?: string;
+    tipo?: string;
+  }): Promise<string> {
+    const { data } = await this.historial({
+      page: 1,
+      pageSize: 10_000,
+      ...filtros,
+    });
+    const esc = (v: unknown) => {
+      const s = v == null ? '' : String(v);
+      return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const filas = data.map((e) =>
+      [
+        e.timestamp.toISOString(),
+        e.tipo,
+        e.placaDetectada,
+        e.confianzaOcr != null ? (e.confianzaOcr * 100).toFixed(1) + '%' : '',
+        e.resultado,
+        e.vehiculo?.miembro?.nombre ??
+          (e.vehiculo?.visitante ? `Visitante: ${e.vehiculo.visitante.nombre}` : ''),
+        e.zona?.codigo ?? '',
+        e.motivo ?? '',
+      ]
+        .map(esc)
+        .join(';'),
+    );
+    return (
+      '﻿' +
+      ['fecha;tipo;placa;confianza;resultado;titular;zona;motivo', ...filas].join(
+        '\r\n',
+      )
+    );
   }
 
   async historial(opts: {

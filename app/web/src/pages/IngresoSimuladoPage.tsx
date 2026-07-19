@@ -115,8 +115,20 @@ export function IngresoSimuladoPage() {
                   ? `${(resultado.confianzaOcr * 100).toFixed(1)}%`
                   : '—'}
               </dd>
-              <dt>Socio</dt>
-              <dd>{resultado.vehiculo?.miembro?.nombre ?? '—'}</dd>
+              <dt>Titular</dt>
+              <dd>
+                {resultado.vehiculo?.miembro?.nombre ??
+                  (resultado.vehiculo?.visitante
+                    ? `Visitante: ${resultado.vehiculo.visitante.nombre}`
+                    : '—')}
+              </dd>
+              <dt>Motor de lectura</dt>
+              <dd>
+                {resultado.ocrBackend ?? '—'}
+                {resultado.ocrBbox
+                  ? ` · placa en [${resultado.ocrBbox.join(', ')}]`
+                  : ''}
+              </dd>
               <dt>Zona asignada</dt>
               <dd>{resultado.zona?.codigo ?? '—'}</dd>
               {resultado.motivo && (
