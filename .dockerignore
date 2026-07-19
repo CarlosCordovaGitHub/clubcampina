@@ -1,0 +1,9 @@
+# Contexto raíz (imagen web)
+**/node_modules
+**/dist
+**/.venv
+**/.env
+**/uploads
+.git
+docs
+assets

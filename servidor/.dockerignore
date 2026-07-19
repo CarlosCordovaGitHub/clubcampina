@@ -1,0 +1,6 @@
+# Contexto ./servidor (imagen api)
+**/node_modules
+**/dist
+**/.env
+**/uploads
+vision-engine
