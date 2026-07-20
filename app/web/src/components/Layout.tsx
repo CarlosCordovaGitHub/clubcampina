@@ -31,8 +31,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <div className="layout">
       <nav className="sidebar">
         <div className="marca">
-          <img src="/logo.jpg" alt="Club Campiña" />
-          <span>Club Campiña</span>
+          <img src="/logo.png" alt="La Campiña Country Club" />
+          <span>La Campiña</span>
         </div>
         {enlaces.map((e) => (
           <NavLink

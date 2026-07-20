@@ -26,8 +26,8 @@ export function LoginPage() {
   return (
     <div className="login-fondo">
       <form className="login-caja" onSubmit={enviar}>
-        <img src="/logo.jpg" alt="Club Campiña" />
-        <h1 style={{ textAlign: 'center' }}>Parqueadero Club Campiña</h1>
+        <img src="/logo.png" alt="La Campiña Country Club" />
+        <h1 style={{ textAlign: 'center' }}>Parqueadero · La Campiña</h1>
         <input
           type="email"
           placeholder="Correo"

@@ -49,9 +49,22 @@ servidor/            npm workspaces (shared + api)
   vision-engine/     Motor de visión — Python/FastAPI (servicio independiente)
   shared/            @club-campina/shared-types: DTOs, enums, eventos WS
 app/
-  web/               React + TypeScript + Vite (lógica en features/, API tipada)
-docs/  assets/       Documento de la propuesta y logo
+  web/               Panel admin del parqueadero — React + TypeScript + Vite
+  movil/             App de socios — Expo / React Native (ver app/movil/README.md)
+docs/  assets/       Documento de la propuesta, logo y hallazgos de la app actual
 ```
+
+## Dos aplicaciones que conviven
+
+- **`app/web`** — panel de administración/operación del módulo de Parqueadero y
+  Control de Acceso (garita, monitoreo de zonas en vivo, historial, reportes).
+- **`app/movil`** — la **app propia de los socios** (Expo/React Native) que
+  reemplaza progresivamente la plataforma rentada. Reúne reservas, noticias,
+  eventos, **control de invitados con pase QR**, **parqueadero en vivo** y el
+  **enrolamiento facial** que habilita el acceso sin filas. Comparte la paleta de
+  marca (azul marino/dorado/celeste del logo) con el panel web. Ver
+  [app/movil/README.md](app/movil/README.md) y
+  [docs/Hallazgos_Plataforma_Actual_miclubapp.md](docs/Hallazgos_Plataforma_Actual_miclubapp.md).
 
 ## Desarrollo local
 
@@ -136,7 +149,9 @@ documento (bastaría cambiar la base de `vision-engine` por una imagen CUDA).
   `vision-engine`, con su propio cliente análogo a `vision-client/` en la API.
 - **Hardware real (cámaras/barreras)**: la apertura es hoy un evento lógico; un
   futuro `barrera-driver` escucharía el mismo pub/sub de Redis.
-- **App móvil**: `app/` ya está separado del backend; reutilizaría
-  `@club-campina/shared-types`, el cliente API tipado y los hooks de `features/`.
+- **App móvil**: implementada en `app/movil` (Expo/React Native), fase 1 con UI
+  final y datos de ejemplo; reutiliza `@club-campina/shared-types` y el patrón del
+  cliente API tipado. Falta cablear los endpoints reales (zonas en vivo,
+  invitados, auth) — ver la tabla de integración en `app/movil/README.md`.
 - **Auth compleja (SSO/MFA)**: `AuthService` está aislado; se reemplaza sin
   tocar guards ni controladores.
