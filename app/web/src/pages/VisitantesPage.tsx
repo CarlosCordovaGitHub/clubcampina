@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { Search, UserPlus } from 'lucide-react';
 import { TipoVehiculo } from '@club-campina/shared-types';
 import { useVisitantes, useVisitantesMutations } from '../features/visitantes';
 import { BadgeSimple } from '../components/Badge';
 import { Paginacion } from '../components/Paginacion';
+import { PageHeader } from '../components/PageHeader';
 
 export function VisitantesPage() {
   const [page, setPage] = useState(1);
@@ -41,10 +43,10 @@ export function VisitantesPage() {
 
   return (
     <>
-      <h1>Visitantes</h1>
+      <PageHeader icono={UserPlus} titulo="Visitantes" descripcion="Autorizaciones temporales de acceso" />
 
       <div className="tarjeta">
-        <h2>Autorizar visitante temporal</h2>
+        <h2><UserPlus size={16} /> Autorizar visitante temporal</h2>
         <form className="formulario" onSubmit={crearVisitante}>
           <label>
             Nombre
@@ -95,14 +97,17 @@ export function VisitantesPage() {
       <div className="tarjeta">
         <div className="fila separada">
           <h2>Listado</h2>
-          <input
-            placeholder="Buscar por nombre, documento o placa…"
-            value={buscar}
-            onChange={(e) => {
-              setBuscar(e.target.value);
-              setPage(1);
-            }}
-          />
+          <span className="input-icono">
+            <Search size={15} />
+            <input
+              placeholder="Buscar por nombre, documento o placa…"
+              value={buscar}
+              onChange={(e) => {
+                setBuscar(e.target.value);
+                setPage(1);
+              }}
+            />
+          </span>
         </div>
         {isLoading && <div className="vacio">Cargando…</div>}
         {data && data.data.length === 0 && (
@@ -110,6 +115,7 @@ export function VisitantesPage() {
         )}
         {data && data.data.length > 0 && (
           <>
+            <div className="tabla-wrap">
             <table>
               <thead>
                 <tr>
@@ -169,6 +175,7 @@ export function VisitantesPage() {
                 ))}
               </tbody>
             </table>
+            </div>
             <Paginacion page={data.page} pageSize={data.pageSize} total={data.total} onPage={setPage} />
           </>
         )}

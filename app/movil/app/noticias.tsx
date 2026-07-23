@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StackHeader } from '../src/components/Header';
-import { colors, font, radius, shadow, spacing } from '../src/theme';
+import { colors, font, fontFamily, radius, shadow, spacing } from '../src/theme';
 import { noticias } from '../src/data/mock';
 
 const SECCIONES = ['Todas', 'INSTITUCIONAL', 'Generales', 'Convenios CLC'] as const;
@@ -67,17 +67,17 @@ const styles = StyleSheet.create({
   filtros: { gap: spacing(2), paddingBottom: spacing(4) },
   filtro: { paddingHorizontal: spacing(4), paddingVertical: spacing(2), borderRadius: 999, backgroundColor: '#fff', borderWidth: 1, borderColor: colors.line },
   filtroActivo: { backgroundColor: colors.navy, borderColor: colors.navy },
-  filtroText: { fontSize: font.small, fontWeight: '700', color: colors.textSoft },
+  filtroText: { fontSize: font.small, fontFamily: fontFamily.medium, color: colors.textSoft },
   card: { backgroundColor: '#fff', borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing(4) },
   banner: { height: 120, alignItems: 'center', justifyContent: 'center' },
   tag: { position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  tagText: { color: '#fff', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+  tagText: { color: '#fff', fontSize: 10, fontFamily: fontFamily.semibold, letterSpacing: 0.5 },
   body: { padding: spacing(4) },
-  titular: { fontSize: font.h3, fontWeight: '800', color: colors.text },
+  titular: { fontSize: font.h3, fontFamily: fontFamily.semibold, color: colors.text },
   resumen: { fontSize: font.small, color: colors.textSoft, lineHeight: 20, marginTop: spacing(2) },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing(4) },
-  fecha: { fontSize: font.tiny, color: colors.textFaint, fontWeight: '600' },
+  fecha: { fontSize: font.tiny, color: colors.textFaint, fontFamily: fontFamily.medium },
   acciones: { flexDirection: 'row', alignItems: 'center', gap: spacing(4) },
   accion: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  accionText: { fontSize: font.small, color: colors.textSoft, fontWeight: '700' },
+  accionText: { fontSize: font.small, color: colors.textSoft, fontFamily: fontFamily.medium },
 });

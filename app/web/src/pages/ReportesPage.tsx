@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Download, FileBarChart2 } from 'lucide-react';
 import { descargarCsvEventos, useReportes } from '../features/reportes';
+import { PageHeader } from '../components/PageHeader';
 
 export function ReportesPage() {
   const [dias, setDias] = useState(7);
@@ -24,20 +26,24 @@ export function ReportesPage() {
 
   return (
     <>
-      <div className="fila separada">
-        <h1>Reportes</h1>
-        <div className="fila">
-          <select value={dias} onChange={(e) => setDias(Number(e.target.value))}>
-            <option value={1}>Último día</option>
-            <option value={7}>Últimos 7 días</option>
-            <option value={30}>Últimos 30 días</option>
-            <option value={90}>Últimos 90 días</option>
-          </select>
-          <button className="secundario" onClick={exportar} disabled={descargando}>
-            {descargando ? 'Exportando…' : 'Exportar historial CSV'}
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        icono={FileBarChart2}
+        titulo="Reportes"
+        descripcion="Actividad de accesos del período seleccionado"
+        acciones={
+          <>
+            <select value={dias} onChange={(e) => setDias(Number(e.target.value))}>
+              <option value={1}>Último día</option>
+              <option value={7}>Últimos 7 días</option>
+              <option value={30}>Últimos 30 días</option>
+              <option value={90}>Últimos 90 días</option>
+            </select>
+            <button className="secundario" onClick={exportar} disabled={descargando}>
+              <Download size={15} /> {descargando ? 'Exportando…' : 'Exportar CSV'}
+            </button>
+          </>
+        }
+      />
 
       {isLoading && !data && <div className="vacio">Cargando…</div>}
 

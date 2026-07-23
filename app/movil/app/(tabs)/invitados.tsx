@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { BrandHeader } from '../../src/components/Header';
 import { Badge, Button, Card, IconCircle, SectionTitle } from '../../src/components/UI';
-import { colors, font, gradients, radius, shadow, spacing } from '../../src/theme';
+import { colors, font, fontFamily, gradients, radius, shadow, spacing } from '../../src/theme';
 import { invitados, socio } from '../../src/data/mock';
 
 export default function Invitados() {
@@ -94,18 +94,18 @@ const styles = StyleSheet.create({
   cupos: { borderRadius: radius.lg, padding: spacing(5) },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   rowCenter: { flexDirection: 'row', alignItems: 'center' },
-  cuposLabel: { color: '#BFE0F5', fontSize: font.small, fontWeight: '600' },
-  cuposBig: { color: '#fff', fontSize: 40, fontWeight: '900', marginTop: 2 },
-  cuposTotal: { color: 'rgba(255,255,255,0.6)', fontSize: 22, fontWeight: '800' },
+  cuposLabel: { color: '#BFE0F5', fontSize: font.small, fontFamily: fontFamily.medium },
+  cuposBig: { color: '#fff', fontSize: 40, fontFamily: fontFamily.bold, marginTop: 2 },
+  cuposTotal: { color: 'rgba(255,255,255,0.6)', fontSize: 22, fontFamily: fontFamily.semibold },
   cuposHint: { color: 'rgba(255,255,255,0.75)', fontSize: font.tiny },
   cuposIcon: { width: 60, height: 60, borderRadius: 30, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
   pips: { flexDirection: 'row', gap: spacing(2), marginTop: spacing(4) },
   pip: { flex: 1, height: 6, borderRadius: 3 },
-  name: { fontSize: font.body, fontWeight: '800', color: colors.text },
+  name: { fontSize: font.body, fontFamily: fontFamily.semibold, color: colors.text },
   sub: { fontSize: font.small, color: colors.textSoft, marginTop: 1 },
   metaRow: { flexDirection: 'row', gap: spacing(4), marginTop: spacing(3) },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  metaText: { fontSize: font.small, color: colors.textSoft, fontWeight: '600' },
+  metaText: { fontSize: font.small, color: colors.textSoft, fontFamily: fontFamily.medium },
   qrRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.line,
   },
-  qrText: { flex: 1, fontSize: font.small, fontWeight: '800', color: colors.navy },
+  qrText: { flex: 1, fontSize: font.small, fontFamily: fontFamily.semibold, color: colors.navy },
   infoBox: {
     flexDirection: 'row',
     gap: spacing(3),
@@ -125,5 +125,5 @@ const styles = StyleSheet.create({
     marginTop: spacing(3),
     alignItems: 'flex-start',
   },
-  infoText: { flex: 1, fontSize: font.small, color: colors.navy, lineHeight: 19, fontWeight: '500' },
+  infoText: { flex: 1, fontSize: font.small, color: colors.navy, lineHeight: 19, fontFamily: fontFamily.regular },
 });

@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { BrandHeader } from '../../src/components/Header';
 import { Badge, Button, Card, IconCircle, SectionTitle } from '../../src/components/UI';
-import { colors, font, gradients, radius, shadow, spacing } from '../../src/theme';
+import { colors, font, fontFamily, gradients, radius, shadow, spacing } from '../../src/theme';
 import { invitados, misReservas, noticias, socio } from '../../src/data/mock';
 import { resumen } from '../../src/data/croquis';
 import { sesionSocioStore, useParqueaderoVivo } from '../../src/data/live';
@@ -27,7 +27,7 @@ export default function Inicio() {
         avatar={socio.avatarIniciales}
         right={
           <Pressable style={styles.bell} hitSlop={8}>
-            <Ionicons name="notifications-outline" size={22} color="#fff" />
+            <Ionicons name="notifications-outline" size={22} color={colors.navy} />
             <View style={styles.dot} />
           </Pressable>
         }
@@ -35,7 +35,7 @@ export default function Inicio() {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Estado del parqueadero en vivo */}
-        <Card onPress={() => router.push('/(tabs)/parqueadero')} style={{ marginTop: -spacing(5) }} level={2}>
+        <Card onPress={() => router.push('/(tabs)/parqueadero')} level={2}>
           <View style={styles.rowBetween}>
             <View style={styles.rowCenter}>
               <IconCircle name="car-sport" bg={colors.skySoft} color={colors.sky} />
@@ -55,7 +55,7 @@ export default function Inicio() {
           </View>
           <View style={styles.rowBetween}>
             <Text style={styles.libres}>
-              <Text style={{ color: colors.green, fontWeight: '900' }}>{r.libres}</Text> plazas libres de {r.total}
+              <Text style={{ color: colors.green, fontFamily: fontFamily.semibold }}>{r.libres}</Text> plazas libres de {r.total}
             </Text>
             <Text style={styles.verMas}>Ver croquis ›</Text>
           </View>
@@ -107,7 +107,7 @@ export default function Inicio() {
         <Card>
           <View style={styles.rowBetween}>
             <Text style={styles.cardSub}>
-              Usados <Text style={{ color: colors.navy, fontWeight: '900' }}>{socio.invitadosUsados}</Text> de {socio.invitadosPermitidos} cupos
+              Usados <Text style={{ color: colors.navy, fontFamily: fontFamily.semibold }}>{socio.invitadosUsados}</Text> de {socio.invitadosPermitidos} cupos
             </Text>
             <Button title="Nuevo" icon="add" variant="outline" onPress={() => router.push('/invitado-nuevo')} style={styles.btnMini} />
           </View>
@@ -171,29 +171,29 @@ const styles = StyleSheet.create({
   dot: { position: 'absolute', top: 4, right: 4, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.gold, borderWidth: 1.5, borderColor: colors.navy },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   rowCenter: { flexDirection: 'row', alignItems: 'center' },
-  cardTitle: { fontSize: font.body, fontWeight: '800', color: colors.text },
+  cardTitle: { fontSize: font.body, fontFamily: fontFamily.semibold, color: colors.text },
   cardSub: { fontSize: font.small, color: colors.textSoft, marginTop: 1 },
   live: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.redSoft, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
   livePulse: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.red },
-  liveText: { color: colors.red, fontSize: 10, fontWeight: '900', letterSpacing: 0.5 },
+  liveText: { color: colors.red, fontSize: 10, fontFamily: fontFamily.semibold, letterSpacing: 0.5 },
   barTrack: { height: 10, borderRadius: 6, backgroundColor: colors.greenSoft, marginTop: spacing(4), marginBottom: spacing(2), overflow: 'hidden' },
   barFill: { height: 10, borderRadius: 6, backgroundColor: colors.red, opacity: 0.85 },
   libres: { fontSize: font.small, color: colors.textSoft },
-  verMas: { fontSize: font.small, color: colors.sky, fontWeight: '800' },
+  verMas: { fontSize: font.small, color: colors.sky, fontFamily: fontFamily.medium },
   quickRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing(5), marginBottom: spacing(2) },
   quick: { alignItems: 'center', gap: spacing(2), width: '23%' },
   quickIcon: { width: 58, height: 58, borderRadius: 18, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
-  quickLabel: { fontSize: font.tiny, fontWeight: '700', color: colors.text },
+  quickLabel: { fontSize: font.tiny, fontFamily: fontFamily.medium, color: colors.text },
   facial: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.lg, padding: spacing(4), marginTop: spacing(4) },
-  facialTitle: { fontSize: font.body, fontWeight: '900', color: colors.navyDeep },
+  facialTitle: { fontSize: font.body, fontFamily: fontFamily.semibold, color: colors.navyDeep },
   facialSub: { fontSize: font.small, color: '#5A4a1e', marginTop: 2 },
   btnMini: { paddingVertical: spacing(2), paddingHorizontal: spacing(3) },
   invRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing(2) },
-  invName: { fontSize: font.body, fontWeight: '700', color: colors.text },
+  invName: { fontSize: font.body, fontFamily: fontFamily.medium, color: colors.text },
   noticiaCard: { width: 220, backgroundColor: '#fff', borderRadius: radius.lg, overflow: 'hidden' },
   noticiaImg: { height: 96, alignItems: 'center', justifyContent: 'center' },
   noticiaTag: { position: 'absolute', top: 8, left: 8, backgroundColor: 'rgba(0,0,0,0.28)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
-  noticiaTagText: { color: '#fff', fontSize: 9, fontWeight: '800', letterSpacing: 0.4 },
-  noticiaTitle: { fontSize: font.small, fontWeight: '800', color: colors.text, minHeight: 36 },
+  noticiaTagText: { color: '#fff', fontSize: 9, fontFamily: fontFamily.semibold, letterSpacing: 0.4 },
+  noticiaTitle: { fontSize: font.small, fontFamily: fontFamily.semibold, color: colors.text, minHeight: 36 },
   noticiaFecha: { fontSize: font.tiny, color: colors.textFaint, marginTop: spacing(2) },
 });

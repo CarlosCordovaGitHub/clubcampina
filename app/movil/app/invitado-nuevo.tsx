@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import { StackHeader } from '../src/components/Header';
 import { Badge, Button } from '../src/components/UI';
-import { colors, font, radius, shadow, spacing } from '../src/theme';
+import { colors, font, fontFamily, radius, shadow, spacing } from '../src/theme';
 import { socio } from '../src/data/mock';
 
 /** Vence al final del día en que se genera el pase (hora local). */
@@ -168,8 +168,8 @@ function Campo({
 const styles = StyleSheet.create({
   scroll: { padding: spacing(5) },
   cuposInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing(2), backgroundColor: colors.skySoft, padding: spacing(3), borderRadius: radius.md, marginBottom: spacing(5) },
-  cuposText: { fontSize: font.small, fontWeight: '700', color: colors.navy },
-  label: { fontSize: font.small, fontWeight: '700', color: colors.textSoft, marginBottom: spacing(2) },
+  cuposText: { fontSize: font.small, fontFamily: fontFamily.medium, color: colors.navy },
+  label: { fontSize: font.small, fontFamily: fontFamily.medium, color: colors.textSoft, marginBottom: spacing(2) },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -182,23 +182,23 @@ const styles = StyleSheet.create({
   },
   input: { flex: 1, paddingVertical: spacing(3.5), fontSize: font.body, color: colors.text },
   tipoRow: { marginTop: spacing(2) },
-  tipoLabel: { fontSize: font.small, fontWeight: '700', color: colors.textSoft, marginBottom: spacing(2) },
+  tipoLabel: { fontSize: font.small, fontFamily: fontFamily.medium, color: colors.textSoft, marginBottom: spacing(2) },
   tipoOpts: { flexDirection: 'row', gap: spacing(3) },
   tipoOpt: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing(2), paddingVertical: spacing(3), borderRadius: radius.md, backgroundColor: '#fff', borderWidth: 1, borderColor: colors.line },
   tipoOptActivo: { backgroundColor: colors.navy, borderColor: colors.navy },
-  tipoOptText: { fontSize: font.small, fontWeight: '800', color: colors.navy },
-  tipoOptTextActivo: { fontSize: font.small, fontWeight: '800', color: '#fff' },
+  tipoOptText: { fontSize: font.small, fontFamily: fontFamily.semibold, color: colors.navy },
+  tipoOptTextActivo: { fontSize: font.small, fontFamily: fontFamily.semibold, color: '#fff' },
   legal: { fontSize: font.tiny, color: colors.textFaint, textAlign: 'center', marginTop: spacing(4), lineHeight: 16 },
   pase: { alignItems: 'center' },
   paseCard: { backgroundColor: '#fff', borderRadius: radius.xl, padding: spacing(6), alignItems: 'center', width: '100%', borderTopWidth: 5, borderTopColor: colors.gold },
   paseHead: { alignItems: 'center', marginBottom: spacing(4) },
-  paseClub: { fontSize: font.h2, fontWeight: '900', color: colors.navy, letterSpacing: 1 },
-  paseSub: { fontSize: font.tiny, fontWeight: '800', color: colors.gold, letterSpacing: 3, marginTop: 2 },
+  paseClub: { fontSize: font.h2, fontFamily: fontFamily.bold, color: colors.navy, letterSpacing: 1 },
+  paseSub: { fontSize: font.tiny, fontFamily: fontFamily.semibold, color: colors.gold, letterSpacing: 3, marginTop: 2 },
   qrWrap: { padding: spacing(4), backgroundColor: '#fff', borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line },
-  paseNombre: { fontSize: font.h3, fontWeight: '800', color: colors.text, marginTop: spacing(4) },
+  paseNombre: { fontSize: font.h3, fontFamily: fontFamily.semibold, color: colors.text, marginTop: spacing(4) },
   paseMeta: { flexDirection: 'row', gap: spacing(2), marginTop: spacing(3) },
   paseFooter: { flexDirection: 'row', alignItems: 'center', gap: spacing(2), marginTop: spacing(4) },
   paseFooterText: { fontSize: font.tiny, color: colors.textSoft },
   paseValid: { flexDirection: 'row', alignItems: 'center', gap: spacing(1.5), marginTop: spacing(3), backgroundColor: colors.greenSoft, paddingHorizontal: spacing(3), paddingVertical: spacing(2), borderRadius: 999 },
-  paseValidText: { fontSize: font.tiny, fontWeight: '800', color: colors.green },
+  paseValidText: { fontSize: font.tiny, fontFamily: fontFamily.semibold, color: colors.green },
 });

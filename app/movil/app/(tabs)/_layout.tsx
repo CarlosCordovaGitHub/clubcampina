@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { ColorValue, Platform } from 'react-native';
-import { colors, shadow } from '../../src/theme';
+import { colors, fontFamily, shadow } from '../../src/theme';
 
 type TabIcon = { color: ColorValue; size: number };
 
@@ -20,7 +20,7 @@ export default function TabsLayout() {
           backgroundColor: '#fff',
           ...shadow(2),
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
+        tabBarLabelStyle: { fontSize: 11, fontFamily: fontFamily.semibold },
       }}
     >
       <Tabs.Screen

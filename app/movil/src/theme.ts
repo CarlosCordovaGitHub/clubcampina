@@ -48,12 +48,23 @@ export const radius = {
 };
 
 export const font = {
-  h1: 26,
-  h2: 21,
-  h3: 17,
+  h1: 24,
+  h2: 19,
+  h3: 16,
   body: 15,
   small: 13,
   tiny: 11,
+};
+
+// Familia de fuente Manrope (cargada en app/_layout.tsx vía expo-font).
+// React Native ignora `fontWeight` en fuentes custom: cada peso necesita su
+// propio nombre de familia, por eso el resto de la app referencia esto en
+// vez de usar fontWeight numérico/'800'.
+export const fontFamily = {
+  regular: 'Manrope_400Regular',
+  medium: 'Manrope_500Medium',
+  semibold: 'Manrope_600SemiBold',
+  bold: 'Manrope_700Bold',
 };
 
 export const shadow = (level: 1 | 2 | 3 = 1) => {

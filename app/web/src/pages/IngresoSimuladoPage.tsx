@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
+import {
+  AlertCircle,
+  Camera,
+  FileImage,
+  ScanLine,
+  UploadCloud,
+} from 'lucide-react';
 import type { EventoAcceso } from '@club-campina/shared-types';
 import { useRegistrarAcceso } from '../features/eventos';
 import { BadgeResultado } from '../components/Badge';
+import { PageHeader } from '../components/PageHeader';
 
 type Modo = 'ingreso' | 'salida';
 type Fuente = 'archivo' | 'camara';
@@ -86,23 +94,11 @@ export function IngresoSimuladoPage() {
 
   return (
     <>
-      <h1>Registro de acceso</h1>
-      <div className="tarjeta">
-        <div className="fila separada">
-          <div className="fila">
-            <button
-              className={modo === 'ingreso' ? 'primario' : 'secundario'}
-              onClick={() => setModo('ingreso')}
-            >
-              Ingreso
-            </button>
-            <button
-              className={modo === 'salida' ? 'primario' : 'secundario'}
-              onClick={() => setModo('salida')}
-            >
-              Salida
-            </button>
-          </div>
+      <PageHeader
+        icono={ScanLine}
+        titulo="Registro de acceso"
+        descripcion="Reconocimiento de placa desde foto o cámara en vivo"
+        acciones={
           <button
             className="primario"
             disabled={!archivo || mutacion.isPending}
@@ -112,21 +108,38 @@ export function IngresoSimuladoPage() {
               ? 'Reconociendo placa…'
               : `Procesar ${modo === 'ingreso' ? 'ingreso' : 'salida'}`}
           </button>
-        </div>
-
-        <div className="fila" style={{ marginBottom: '0.75rem' }}>
-          <button
-            className={fuente === 'archivo' ? 'primario' : 'secundario'}
-            onClick={() => setFuente('archivo')}
-          >
-            Subir foto
-          </button>
-          <button
-            className={fuente === 'camara' ? 'primario' : 'secundario'}
-            onClick={() => setFuente('camara')}
-          >
-            Usar cámara en vivo
-          </button>
+        }
+      />
+      <div className="tarjeta">
+        <div className="fila separada">
+          <div className="fila">
+            <button
+              className={`chip ${modo === 'ingreso' ? 'activo' : ''}`}
+              onClick={() => setModo('ingreso')}
+            >
+              Ingreso
+            </button>
+            <button
+              className={`chip ${modo === 'salida' ? 'activo' : ''}`}
+              onClick={() => setModo('salida')}
+            >
+              Salida
+            </button>
+          </div>
+          <div className="fila">
+            <button
+              className={`chip ${fuente === 'archivo' ? 'activo' : ''}`}
+              onClick={() => setFuente('archivo')}
+            >
+              <FileImage size={15} /> Subir foto
+            </button>
+            <button
+              className={`chip ${fuente === 'camara' ? 'activo' : ''}`}
+              onClick={() => setFuente('camara')}
+            >
+              <Camera size={15} /> Cámara en vivo
+            </button>
+          </div>
         </div>
 
         {fuente === 'archivo' ? (
@@ -147,10 +160,13 @@ export function IngresoSimuladoPage() {
             {preview ? (
               <img src={preview} alt="Foto seleccionada" />
             ) : (
-              <p>
-                Arrastra aquí la foto del vehículo (con la placa visible)
-                <br />o haz clic para seleccionarla
-              </p>
+              <>
+                <UploadCloud size={30} />
+                <p style={{ margin: 0 }}>
+                  Arrastra aquí la foto del vehículo (con la placa visible)
+                  <br />o haz clic para seleccionarla
+                </p>
+              </>
             )}
             <input
               ref={inputRef}
@@ -163,7 +179,8 @@ export function IngresoSimuladoPage() {
         ) : (
           <div>
             {errorCamara ? (
-              <p style={{ color: 'var(--rojo)' }}>
+              <p className="mensaje-error">
+                <AlertCircle size={16} />
                 {errorCamara}. En el navegador debes dar permiso de cámara; si
                 estás en un celular, ábrelo con la IP del servidor por HTTPS
                 (o localhost) — Chrome/Safari bloquean la cámara en HTTP para
@@ -171,31 +188,35 @@ export function IngresoSimuladoPage() {
               </p>
             ) : (
               <>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  style={{ width: '100%', maxHeight: 360, borderRadius: 10, background: '#000' }}
-                />
-                <div className="fila" style={{ marginTop: '0.75rem' }}>
+                <div className="acceso-video-wrap">
+                  <video ref={videoRef} autoPlay playsInline muted />
+                  <span className="acceso-video-badge">
+                    <span className="punto-en-vivo" /> En vivo
+                  </span>
+                </div>
+                <div className="fila" style={{ marginTop: '0.85rem' }}>
                   <button className="primario" onClick={capturarDesdeCamera}>
-                    Capturar foto
+                    <Camera size={16} /> Capturar foto
                   </button>
                 </div>
               </>
             )}
             {preview && (
               <div style={{ marginTop: '1rem' }}>
-                <p style={{ color: 'var(--gris-600)', fontSize: '0.85rem' }}>
-                  Última captura:
+                <p style={{ color: 'var(--gris-600)', fontSize: '0.85rem', margin: '0 0 0.4rem' }}>
+                  Última captura
                 </p>
                 <img src={preview} alt="Captura de cámara" style={{ maxWidth: 280, borderRadius: 8 }} />
               </div>
             )}
           </div>
         )}
-        {error && <p style={{ color: 'var(--rojo)' }}>{error}</p>}
+        {error && (
+          <p className="mensaje-error" style={{ marginTop: '0.85rem' }}>
+            <AlertCircle size={16} />
+            {error}
+          </p>
+        )}
       </div>
 
       {resultado && (

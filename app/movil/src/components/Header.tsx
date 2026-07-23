@@ -1,11 +1,10 @@
-// Encabezado de marca con degradado azul marino y detalle dorado.
+// Encabezado de pantalla — versión plana y moderna (sin el banner curvo pesado).
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { colors, font, gradients, spacing } from '../theme';
+import { colors, font, fontFamily, spacing } from '../theme';
 
 export function BrandHeader({
   saludo,
@@ -20,8 +19,7 @@ export function BrandHeader({
 }) {
   const insets = useSafeAreaInsets();
   return (
-    <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.wrap, { paddingTop: insets.top + spacing(3) }]}>
-      <View style={styles.goldLine} />
+    <View style={[styles.wrap, { paddingTop: insets.top + spacing(3) }]}>
       <View style={styles.row}>
         <View style={{ flex: 1 }}>
           {saludo ? <Text style={styles.saludo}>{saludo}</Text> : null}
@@ -34,62 +32,51 @@ export function BrandHeader({
           </View>
         )}
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 export function StackHeader({ titulo }: { titulo: string }) {
   const insets = useSafeAreaInsets();
   return (
-    <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.stackWrap, { paddingTop: insets.top + spacing(2) }]}>
-      <View style={styles.goldLine} />
+    <View style={[styles.stackWrap, { paddingTop: insets.top + spacing(2) }]}>
       <View style={styles.stackRow}>
         <Pressable onPress={() => router.back()} hitSlop={10} style={styles.back}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+          <Ionicons name="chevron-back" size={22} color={colors.navy} />
         </Pressable>
         <Text style={styles.stackTitle}>{titulo}</Text>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 22 }} />
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
     paddingHorizontal: spacing(5),
-    paddingBottom: spacing(6),
-    borderBottomLeftRadius: 26,
-    borderBottomRightRadius: 26,
-  },
-  goldLine: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    backgroundColor: colors.gold,
+    paddingBottom: spacing(4),
+    backgroundColor: colors.bg,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing(3) },
-  saludo: { color: '#BFE0F5', fontSize: font.small, fontWeight: '600', marginBottom: 2 },
-  titulo: { color: '#fff', fontSize: font.h1, fontWeight: '800' },
+  saludo: { color: colors.textSoft, fontSize: font.small, fontFamily: fontFamily.medium, marginBottom: 2 },
+  titulo: { color: colors.text, fontSize: font.h1, fontFamily: fontFamily.semibold, letterSpacing: -0.3 },
   avatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: colors.gold,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.navy,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.5)',
   },
-  avatarText: { color: colors.navyDeep, fontWeight: '900', fontSize: font.body },
+  avatarText: { color: '#fff', fontFamily: fontFamily.bold, fontSize: font.body },
   stackWrap: {
     paddingHorizontal: spacing(4),
-    paddingBottom: spacing(4),
-    borderBottomLeftRadius: 22,
-    borderBottomRightRadius: 22,
+    paddingBottom: spacing(3),
+    backgroundColor: colors.bg,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.line,
   },
   stackRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  stackTitle: { color: '#fff', fontSize: font.h2, fontWeight: '800' },
-  back: { width: 24 },
+  stackTitle: { color: colors.text, fontSize: font.h2, fontFamily: fontFamily.semibold },
+  back: { width: 22 },
 });

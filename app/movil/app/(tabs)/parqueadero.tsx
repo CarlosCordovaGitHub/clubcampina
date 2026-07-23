@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BrandHeader } from '../../src/components/Header';
 import { Badge, Button, Card } from '../../src/components/UI';
 import { COLOR_ESTADO, CroquisClub, VistaCroquis, VistaReq } from '../../src/components/CroquisClub';
-import { colors, font, radius, shadow, spacing } from '../../src/theme';
+import { colors, font, fontFamily, radius, shadow, spacing } from '../../src/theme';
 import { ETIQUETA_BANDA, EstadoPlaza, PLAZAS, resumen } from '../../src/data/croquis';
 import { useParqueaderoVivo } from '../../src/data/live';
 
@@ -216,17 +216,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255,255,255,0.14)',
+    backgroundColor: colors.greenSoft,
     paddingHorizontal: spacing(2.5),
     paddingVertical: spacing(1.5),
     borderRadius: 999,
   },
-  livePulse: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#5EE29A' },
-  liveText: { color: '#fff', fontSize: font.tiny, fontWeight: '800' },
+  livePulse: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.green },
+  liveText: { color: colors.green, fontSize: font.tiny, fontFamily: fontFamily.semibold },
   kpis: { flexDirection: 'row', gap: spacing(3) },
   kpi: { flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: spacing(3.5), alignItems: 'center' },
-  kpiValor: { fontSize: 24, fontWeight: '900', marginTop: spacing(1) },
-  kpiLabel: { fontSize: font.small, color: colors.textSoft, fontWeight: '600' },
+  kpiValor: { fontSize: 24, fontFamily: fontFamily.semibold, marginTop: spacing(1) },
+  kpiLabel: { fontSize: font.small, color: colors.textSoft, fontFamily: fontFamily.medium },
   chipsRow: { flexDirection: 'row', gap: spacing(2), marginVertical: spacing(4), flexWrap: 'wrap' },
   chip: {
     flexDirection: 'row',
@@ -240,14 +240,14 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
   },
   chipActivo: { backgroundColor: colors.navy, borderColor: colors.navy },
-  chipText: { fontSize: font.small, fontWeight: '800', color: colors.navy },
+  chipText: { fontSize: font.small, fontFamily: fontFamily.medium, color: colors.navy },
   leyenda: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(4), marginTop: spacing(3), paddingHorizontal: spacing(1) },
   leyendaItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  leyendaText: { fontSize: font.tiny, color: colors.textSoft, fontWeight: '700' },
+  leyendaText: { fontSize: font.tiny, color: colors.textSoft, fontFamily: fontFamily.medium },
   ayuda: { fontSize: font.tiny, color: colors.textFaint, marginTop: spacing(2), paddingHorizontal: spacing(1) },
   selRow: { flexDirection: 'row', alignItems: 'center' },
   selIcon: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  selTitulo: { fontSize: font.h3, fontWeight: '900', color: colors.text },
+  selTitulo: { fontSize: font.h3, fontFamily: fontFamily.semibold, color: colors.text },
   selSub: { fontSize: font.small, color: colors.textSoft, marginTop: 1 },
   nota: {
     flexDirection: 'row',
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     padding: spacing(3),
     marginTop: spacing(3),
   },
-  notaText: { flex: 1, fontSize: font.small, color: '#7A5A1E', fontWeight: '600', lineHeight: 18 },
+  notaText: { flex: 1, fontSize: font.small, color: '#7A5A1E', fontFamily: fontFamily.regular, lineHeight: 18 },
   hint: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     marginTop: spacing(3),
     paddingVertical: spacing(2),
   },
-  hintText: { fontSize: font.small, color: colors.textSoft, fontWeight: '600' },
+  hintText: { fontSize: font.small, color: colors.textSoft, fontFamily: fontFamily.regular },
   infoBox: {
     flexDirection: 'row',
     gap: spacing(3),
@@ -277,5 +277,5 @@ const styles = StyleSheet.create({
     marginTop: spacing(4),
     alignItems: 'flex-start',
   },
-  infoText: { flex: 1, fontSize: font.small, color: colors.navy, lineHeight: 19, fontWeight: '500' },
+  infoText: { flex: 1, fontSize: font.small, color: colors.navy, lineHeight: 19, fontFamily: fontFamily.regular },
 });

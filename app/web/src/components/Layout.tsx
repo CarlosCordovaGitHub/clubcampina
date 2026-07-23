@@ -1,21 +1,42 @@
 import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  AlertTriangle,
+  Bell,
+  BellRing,
+  ClipboardList,
+  Gauge,
+  LayoutGrid,
+  LogOut,
+  ScanLine,
+  UserPlus,
+  Users,
+  Car,
+  FileBarChart2,
+} from 'lucide-react';
 import { sesion } from '../api/client';
 import { useRealtimeMonitoreo } from '../realtime/useRealtime';
 
 const enlaces = [
-  { a: '/', texto: 'Dashboard' },
-  { a: '/zonas', texto: 'Mapa de zonas' },
-  { a: '/acceso', texto: 'Ingreso / Salida' },
-  { a: '/eventos', texto: 'Historial' },
-  { a: '/miembros', texto: 'Miembros' },
-  { a: '/vehiculos', texto: 'Vehículos' },
-  { a: '/visitantes', texto: 'Visitantes' },
-  { a: '/reportes', texto: 'Reportes' },
+  { a: '/', texto: 'Dashboard', icono: Gauge },
+  { a: '/zonas', texto: 'Mapa de zonas', icono: LayoutGrid },
+  { a: '/acceso', texto: 'Registro de acceso', icono: ScanLine },
+  { a: '/eventos', texto: 'Historial', icono: ClipboardList },
+  { a: '/miembros', texto: 'Miembros', icono: Users },
+  { a: '/vehiculos', texto: 'Vehículos', icono: Car },
+  { a: '/visitantes', texto: 'Visitantes', icono: UserPlus },
+  { a: '/reportes', texto: 'Reportes', icono: FileBarChart2 },
 ];
+
+function iniciales(nombre?: string) {
+  if (!nombre) return '?';
+  const partes = nombre.trim().split(/\s+/);
+  return (partes[0]?.[0] ?? '') + (partes[1]?.[0] ?? '');
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { conectado, alertas, descartarAlertas } = useRealtimeMonitoreo();
   const usuario = sesion.usuario();
   const [notif, setNotif] = useState(
@@ -27,58 +48,82 @@ export function Layout({ children }: { children: React.ReactNode }) {
     setNotif(await Notification.requestPermission());
   };
 
+  const actual = enlaces.find((e) => (e.a === '/' ? location.pathname === '/' : location.pathname.startsWith(e.a)));
+
   return (
-    <div className="layout">
+    <div className="app-shell">
       <nav className="sidebar">
         <div className="marca">
           <img src="/logo.png" alt="La Campiña Country Club" />
           <span>La Campiña</span>
         </div>
-        {enlaces.map((e) => (
-          <NavLink
-            key={e.a}
-            to={e.a}
-            end={e.a === '/'}
-            className={({ isActive }) => (isActive ? 'activo' : '')}
-          >
-            {e.texto}
-          </NavLink>
-        ))}
+        <div className="grupo-enlaces">
+          {enlaces.map((e) => (
+            <NavLink
+              key={e.a}
+              to={e.a}
+              end={e.a === '/'}
+              className={({ isActive }) => (isActive ? 'activo' : '')}
+            >
+              <e.icono size={17} strokeWidth={2} />
+              {e.texto}
+            </NavLink>
+          ))}
+        </div>
         <div className="pie">
-          <div>
+          <div className="estado-conexion">
             <span className={`punto ${conectado ? 'on' : 'off'}`} />
             {conectado ? 'Monitoreo en vivo' : 'Sin conexión en vivo'}
           </div>
           {notif === 'default' && (
-            <button onClick={pedirNotificaciones}>
-              Activar notificaciones
+            <button className="enlace-notif" onClick={pedirNotificaciones}>
+              <Bell size={14} /> Activar notificaciones
             </button>
           )}
-          <div>{usuario?.nombre}</div>
-          <button
-            onClick={() => {
-              sesion.cerrar();
-              navigate('/login');
-            }}
-          >
-            Cerrar sesión
-          </button>
         </div>
       </nav>
-      <main className="contenido">
-        {alertas.length > 0 && (
-          <div className="alerta-banner">
-            <span>
-              ⚠ {alertas[0].mensaje}
-              {alertas.length > 1 ? ` (+${alertas.length - 1} alertas más)` : ''}
-            </span>
-            <button className="secundario" onClick={descartarAlertas}>
-              Descartar
+      <div className="contenido-scroll">
+        <header className="navbar">
+          <div className="navbar-titulo">
+            <span className="eyebrow">Parqueadero</span>
+            <h1>{actual?.texto ?? 'Club Campiña'}</h1>
+          </div>
+          <div className="navbar-derecha">
+            <button className="icon-btn" title="Notificaciones" onClick={pedirNotificaciones}>
+              {notif === 'granted' ? <BellRing size={18} /> : <Bell size={18} />}
+            </button>
+            <div className="navbar-usuario">
+              <span className="avatar">{iniciales(usuario?.nombre).toUpperCase()}</span>
+              <span className="nombre">{usuario?.nombre}</span>
+            </div>
+            <button
+              className="icon-btn"
+              title="Cerrar sesión"
+              onClick={() => {
+                sesion.cerrar();
+                navigate('/login');
+              }}
+            >
+              <LogOut size={18} />
             </button>
           </div>
-        )}
-        {children}
-      </main>
+        </header>
+        <main className="contenido">
+          {alertas.length > 0 && (
+            <div className="alerta-banner">
+              <span className="alerta-texto">
+                <AlertTriangle size={17} />
+                {alertas[0].mensaje}
+                {alertas.length > 1 ? ` (+${alertas.length - 1} alertas más)` : ''}
+              </span>
+              <button className="secundario" onClick={descartarAlertas}>
+                Descartar
+              </button>
+            </div>
+          )}
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

@@ -11,6 +11,7 @@
     "export:web": "expo export -p web"
   },
   "dependencies": {
+    "@expo-google-fonts/manrope": "^0.4.2",
     "@expo/metro-runtime": "~57.0.6",
     "@expo/vector-icons": "^15.1.1",
     "@types/react": "~19.2.4",

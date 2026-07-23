@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Car, Plus, Search } from 'lucide-react';
 import {
   EstadoVehiculo,
   TipoVehiculo,
@@ -7,6 +8,7 @@ import { useMiembros } from '../features/miembros';
 import { useVehiculos, useVehiculosMutations } from '../features/vehiculos';
 import { BadgeSimple } from '../components/Badge';
 import { Paginacion } from '../components/Paginacion';
+import { PageHeader } from '../components/PageHeader';
 
 export function VehiculosPage() {
   const [page, setPage] = useState(1);
@@ -37,10 +39,10 @@ export function VehiculosPage() {
 
   return (
     <>
-      <h1>Vehículos</h1>
+      <PageHeader icono={Car} titulo="Vehículos" descripcion="Vehículos registrados y su titular" />
 
       <div className="tarjeta">
-        <h2>Registrar vehículo</h2>
+        <h2><Plus size={16} /> Registrar vehículo</h2>
         <form className="formulario" onSubmit={crearVehiculo}>
           <label>
             Placa
@@ -88,18 +90,22 @@ export function VehiculosPage() {
       <div className="tarjeta">
         <div className="fila separada">
           <h2>Listado</h2>
-          <input
-            placeholder="Buscar por placa o socio…"
-            value={buscar}
-            onChange={(e) => {
-              setBuscar(e.target.value);
-              setPage(1);
-            }}
-          />
+          <span className="input-icono">
+            <Search size={15} />
+            <input
+              placeholder="Buscar por placa o socio…"
+              value={buscar}
+              onChange={(e) => {
+                setBuscar(e.target.value);
+                setPage(1);
+              }}
+            />
+          </span>
         </div>
         {isLoading && <div className="vacio">Cargando…</div>}
         {data && (
           <>
+            <div className="tabla-wrap">
             <table>
               <thead>
                 <tr>
@@ -158,6 +164,7 @@ export function VehiculosPage() {
                 ))}
               </tbody>
             </table>
+            </div>
             <Paginacion page={data.page} pageSize={data.pageSize} total={data.total} onPage={setPage} />
           </>
         )}

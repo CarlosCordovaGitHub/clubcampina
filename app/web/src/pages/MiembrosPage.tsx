@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Search, UserPlus, Users } from 'lucide-react';
 import {
   EstadoMiembro,
   TipoMembresia,
@@ -6,6 +7,7 @@ import {
 import { useMiembros, useMiembrosMutations } from '../features/miembros';
 import { BadgeSimple } from '../components/Badge';
 import { Paginacion } from '../components/Paginacion';
+import { PageHeader } from '../components/PageHeader';
 
 export function MiembrosPage() {
   const [page, setPage] = useState(1);
@@ -36,10 +38,10 @@ export function MiembrosPage() {
 
   return (
     <>
-      <h1>Miembros</h1>
+      <PageHeader icono={Users} titulo="Miembros" descripcion="Socios del club y sus datos de membresía" />
 
       <div className="tarjeta">
-        <h2>Registrar miembro</h2>
+        <h2><UserPlus size={16} /> Registrar miembro</h2>
         <form className="formulario" onSubmit={crearMiembro}>
           <label>
             Nombre
@@ -67,18 +69,22 @@ export function MiembrosPage() {
       <div className="tarjeta">
         <div className="fila separada">
           <h2>Listado</h2>
-          <input
-            placeholder="Buscar por nombre o documento…"
-            value={buscar}
-            onChange={(e) => {
-              setBuscar(e.target.value);
-              setPage(1);
-            }}
-          />
+          <span className="input-icono">
+            <Search size={15} />
+            <input
+              placeholder="Buscar por nombre o documento…"
+              value={buscar}
+              onChange={(e) => {
+                setBuscar(e.target.value);
+                setPage(1);
+              }}
+            />
+          </span>
         </div>
         {isLoading && <div className="vacio">Cargando…</div>}
         {data && (
           <>
+            <div className="tabla-wrap">
             <table>
               <thead>
                 <tr>
@@ -137,6 +143,7 @@ export function MiembrosPage() {
                 ))}
               </tbody>
             </table>
+            </div>
             <Paginacion page={data.page} pageSize={data.pageSize} total={data.total} onPage={setPage} />
           </>
         )}

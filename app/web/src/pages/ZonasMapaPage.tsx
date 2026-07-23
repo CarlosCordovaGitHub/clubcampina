@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { LayoutGrid, Plus } from 'lucide-react';
 import { EstadoZona, RolUsuario, TipoZona } from '@club-campina/shared-types';
 import { sesion } from '../api/client';
 import { resumenZonas, useZonas, useZonasMutations } from '../features/zonas';
-import { BadgeSimple } from '../components/Badge';
+import { BadgeSimple, BadgeEstadoZona } from '../components/Badge';
+import { PageHeader } from '../components/PageHeader';
+import { CroquisZonas } from '../components/CroquisZonas';
 
 export function ZonasMapaPage() {
   const { data: zonas, isLoading } = useZonas();
@@ -15,6 +18,9 @@ export function ZonasMapaPage() {
   const [codigo, setCodigo] = useState('');
   const [tipo, setTipo] = useState<TipoZona>(TipoZona.GENERAL);
   const [error, setError] = useState('');
+  const [seleccion, setSeleccion] = useState<string | null>(null);
+
+  const zonaSel = zonas?.find((z) => z.codigo === seleccion) ?? null;
 
   const crearZona = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +35,21 @@ export function ZonasMapaPage() {
 
   return (
     <>
-      <h1>Mapa de zonas</h1>
-      <div className="fila" style={{ marginBottom: '1rem' }}>
-        <BadgeSimple texto={`${resumen.libres} libres`} color="verde" />
-        <BadgeSimple texto={`${resumen.ocupadas} ocupadas`} color="rojo" />
-        <BadgeSimple texto={`${resumen.fueraServicio} fuera de servicio`} color="gris" />
-      </div>
+      <PageHeader
+        icono={LayoutGrid}
+        titulo="Mapa de zonas"
+        descripcion="Disponibilidad de espacios por zona"
+        acciones={
+          <div className="fila">
+            <BadgeSimple texto={`${resumen.libres} libres`} color="verde" />
+            <BadgeSimple texto={`${resumen.ocupadas} ocupadas`} color="rojo" />
+            <BadgeSimple texto={`${resumen.fueraServicio} fuera de servicio`} color="gris" />
+          </div>
+        }
+      />
       {esAdmin && (
         <div className="tarjeta">
-          <h2>Crear zona</h2>
+          <h2><Plus size={16} /> Crear zona</h2>
           <form className="formulario" onSubmit={crearZona}>
             <label>
               Código
@@ -66,57 +78,65 @@ export function ZonasMapaPage() {
 
       <div className="tarjeta">
         {isLoading && <div className="vacio">Cargando zonas…</div>}
-        <div className="mapa-zonas">
-          {zonas?.map((zona) => (
-            <div key={zona.id} className={`zona ${zona.estado}`}>
-              <span className="codigo">{zona.codigo}</span>
-              <span className="detalle">{zona.tipo}</span>
-              {zona.estado === EstadoZona.OCUPADA && zona.vehiculoActual && (
-                <span className="detalle">
-                  <strong>{zona.vehiculoActual.placa}</strong>
-                  <br />
-                  {zona.vehiculoActual.miembro?.nombre ??
-                    (zona.vehiculoActual.visitante
-                      ? `Visitante: ${zona.vehiculoActual.visitante.nombre}`
-                      : '')}
-                </span>
-              )}
-              {puedeOperar && zona.estado !== EstadoZona.OCUPADA && (
-                <div className="fila" style={{ marginTop: 'auto', gap: '0.35rem' }}>
-                  <button
-                    className="secundario"
-                    style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                    onClick={() =>
-                      cambiarEstado.mutate({
-                        id: zona.id,
-                        estado:
-                          zona.estado === EstadoZona.LIBRE
-                            ? EstadoZona.FUERA_DE_SERVICIO
-                            : EstadoZona.LIBRE,
-                      })
+        <CroquisZonas zonas={zonas} seleccion={seleccion} onSelect={setSeleccion} />
+        <div className="croquis-leyenda">
+          <span><i className="punto-leyenda" style={{ background: '#2FBF71' }} /> Libre</span>
+          <span><i className="punto-leyenda" style={{ background: '#DF5B52' }} /> Ocupada</span>
+          <span><i className="punto-leyenda" style={{ background: '#AEB9C6' }} /> Fuera de servicio</span>
+        </div>
+        <p className="croquis-ayuda">Toca una plaza del croquis para ver su detalle</p>
+      </div>
+
+      {zonaSel && (
+        <div className="tarjeta">
+          <div className="fila separada">
+            <h2>Zona {zonaSel.codigo}</h2>
+            <BadgeEstadoZona estado={zonaSel.estado} />
+          </div>
+          <p className="descripcion" style={{ margin: '0 0 0.75rem' }}>{zonaSel.tipo}</p>
+          {zonaSel.estado === EstadoZona.OCUPADA && zonaSel.vehiculoActual && (
+            <p style={{ margin: '0 0 0.75rem' }}>
+              <strong>{zonaSel.vehiculoActual.placa}</strong>
+              {' · '}
+              {zonaSel.vehiculoActual.miembro?.nombre ??
+                (zonaSel.vehiculoActual.visitante
+                  ? `Visitante: ${zonaSel.vehiculoActual.visitante.nombre}`
+                  : '')}
+            </p>
+          )}
+          {puedeOperar && zonaSel.estado !== EstadoZona.OCUPADA && (
+            <div className="fila">
+              <button
+                className="secundario"
+                onClick={() =>
+                  cambiarEstado.mutate({
+                    id: zonaSel.id,
+                    estado:
+                      zonaSel.estado === EstadoZona.LIBRE
+                        ? EstadoZona.FUERA_DE_SERVICIO
+                        : EstadoZona.LIBRE,
+                  })
+                }
+              >
+                {zonaSel.estado === EstadoZona.LIBRE ? 'Deshabilitar' : 'Habilitar'}
+              </button>
+              {esAdmin && (
+                <button
+                  className="peligro"
+                  onClick={() => {
+                    if (confirm(`¿Eliminar la zona ${zonaSel.codigo}?`)) {
+                      eliminar.mutate(zonaSel.id);
+                      setSeleccion(null);
                     }
-                  >
-                    {zona.estado === EstadoZona.LIBRE ? 'Deshabilitar' : 'Habilitar'}
-                  </button>
-                  {esAdmin && (
-                    <button
-                      className="peligro"
-                      style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                      onClick={() => {
-                        if (confirm(`¿Eliminar la zona ${zona.codigo}?`)) {
-                          eliminar.mutate(zona.id);
-                        }
-                      }}
-                    >
-                      Eliminar
-                    </button>
-                  )}
-                </div>
+                  }}
+                >
+                  Eliminar
+                </button>
               )}
             </div>
-          ))}
+          )}
         </div>
-      </div>
+      )}
     </>
   );
 }

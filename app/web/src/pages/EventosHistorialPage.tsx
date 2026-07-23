@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { ClipboardList, Search } from 'lucide-react';
 import { useEventos } from '../features/eventos';
 import { BadgeResultado } from '../components/Badge';
 import { Paginacion } from '../components/Paginacion';
+import { PageHeader } from '../components/PageHeader';
 
 export function EventosHistorialPage() {
   const [page, setPage] = useState(1);
@@ -12,17 +14,20 @@ export function EventosHistorialPage() {
 
   return (
     <>
-      <h1>Historial de accesos</h1>
+      <PageHeader icono={ClipboardList} titulo="Historial de accesos" descripcion="Todos los eventos registrados" />
       <div className="tarjeta">
         <div className="fila" style={{ marginBottom: '1rem' }}>
-          <input
-            placeholder="Buscar por placa…"
-            value={placa}
-            onChange={(e) => {
-              setPlaca(e.target.value);
-              setPage(1);
-            }}
-          />
+          <span className="input-icono">
+            <Search size={15} />
+            <input
+              placeholder="Buscar por placa…"
+              value={placa}
+              onChange={(e) => {
+                setPlaca(e.target.value);
+                setPage(1);
+              }}
+            />
+          </span>
           <select
             value={tipo}
             onChange={(e) => {
@@ -54,6 +59,7 @@ export function EventosHistorialPage() {
         )}
         {data && data.data.length > 0 && (
           <>
+            <div className="tabla-wrap">
             <table>
               <thead>
                 <tr>
@@ -101,6 +107,7 @@ export function EventosHistorialPage() {
                 ))}
               </tbody>
             </table>
+            </div>
             <Paginacion
               page={data.page}
               pageSize={data.pageSize}

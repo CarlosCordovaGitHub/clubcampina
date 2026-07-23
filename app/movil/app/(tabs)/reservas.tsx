@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BrandHeader } from '../../src/components/Header';
 import { Badge, Button, Card, SectionTitle } from '../../src/components/UI';
-import { colors, font, radius, shadow, spacing } from '../../src/theme';
+import { colors, font, fontFamily, radius, shadow, spacing } from '../../src/theme';
 import { canchas, eventos, misReservas } from '../../src/data/mock';
 
 const HORAS = ['06:00', '07:00', '08:00', '17:00', '18:00', '19:00'];
@@ -139,19 +139,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   canchaIcon: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', marginBottom: spacing(2) },
-  canchaName: { fontSize: font.small, fontWeight: '800', color: colors.text },
+  canchaName: { fontSize: font.small, fontFamily: fontFamily.semibold, color: colors.text },
   canchaDisp: { fontSize: font.tiny, color: colors.textSoft, marginTop: 1 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   rowCenter: { flexDirection: 'row', alignItems: 'center' },
-  selTitle: { fontSize: font.body, fontWeight: '800', color: colors.text },
+  selTitle: { fontSize: font.body, fontFamily: fontFamily.semibold, color: colors.text },
   selSub: { fontSize: font.small, color: colors.textSoft, marginTop: 1 },
-  pickLabel: { fontSize: font.small, fontWeight: '700', color: colors.textSoft, marginTop: spacing(4), marginBottom: spacing(2) },
+  pickLabel: { fontSize: font.small, fontFamily: fontFamily.medium, color: colors.textSoft, marginTop: spacing(4), marginBottom: spacing(2) },
   horas: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
   hora: { paddingVertical: spacing(2.5), paddingHorizontal: spacing(4), borderRadius: radius.sm, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.line },
   horaActiva: { backgroundColor: colors.navy, borderColor: colors.navy },
-  horaText: { fontSize: font.small, fontWeight: '800', color: colors.text },
+  horaText: { fontSize: font.small, fontFamily: fontFamily.medium, color: colors.text },
   miniIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   barTrack: { height: 8, borderRadius: 5, backgroundColor: colors.line, marginTop: spacing(3), marginBottom: spacing(2), overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 5, backgroundColor: colors.gold },
-  inscribir: { fontSize: font.small, color: colors.sky, fontWeight: '800' },
+  inscribir: { fontSize: font.small, color: colors.sky, fontFamily: fontFamily.medium },
 });

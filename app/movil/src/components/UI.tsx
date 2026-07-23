@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, font, gradients, radius, shadow, spacing } from '../theme';
+import { colors, font, fontFamily, gradients, radius, shadow, spacing } from '../theme';
 
 export function Card({
   children,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing(1),
     borderRadius: radius.pill,
   },
-  badgeText: { fontSize: font.tiny, fontWeight: '800', letterSpacing: 0.3 },
+  badgeText: { fontSize: font.tiny, fontFamily: fontFamily.semibold, letterSpacing: 0.3 },
   btn: {
     borderRadius: radius.md,
     paddingVertical: spacing(3.5),
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnInner: { flexDirection: 'row', alignItems: 'center', gap: spacing(2) },
-  btnText: { color: '#fff', fontWeight: '800', fontSize: font.body },
+  btnText: { color: '#fff', fontFamily: fontFamily.semibold, fontSize: font.body },
   btnGhost: { backgroundColor: colors.skySoft },
   btnOutline: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.navy },
   sectionTitle: {
@@ -208,6 +208,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing(3),
     marginTop: spacing(1),
   },
-  sectionTitleText: { fontSize: font.h3, fontWeight: '800', color: colors.text },
-  sectionAction: { fontSize: font.small, fontWeight: '700', color: colors.sky },
+  sectionTitleText: { fontSize: font.h3, fontFamily: fontFamily.semibold, color: colors.text },
+  sectionAction: { fontSize: font.small, fontFamily: fontFamily.semibold, color: colors.sky },
 });
