@@ -6,6 +6,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--prefix", "app/web"],
       "port": 5173
+    },
+    {
+      "name": "movil-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "web", "--prefix", "app/movil"],
+      "port": 8081
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4173", "--directory", "site"],
+      "port": 4173
     }
   ]
 }

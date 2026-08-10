@@ -38,6 +38,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="noticias" options={{ presentation: 'card' }} />
         <Stack.Screen name="invitado-nuevo" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="reconocer-placa" options={{ presentation: 'modal' }} />
       </Stack>
     </SafeAreaProvider>
   );

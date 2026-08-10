@@ -66,6 +66,7 @@ export default function Inicio() {
           <Quick icono="calendar" label="Reservar" tint={colors.sky} onPress={() => router.push('/(tabs)/reservas')} />
           <Quick icono="person-add" label="Invitar" tint={colors.green} onPress={() => router.push('/invitado-nuevo')} />
           <Quick icono="qr-code" label="Mi acceso" tint={colors.goldDeep} onPress={() => router.push('/(tabs)/perfil')} />
+          <Quick icono="scan" label="Reconocer placa" tint={colors.red} onPress={() => router.push('/reconocer-placa')} />
           <Quick icono="newspaper" label="Noticias" tint={colors.navy} onPress={() => router.push('/noticias')} />
         </View>
 
@@ -180,10 +181,10 @@ const styles = StyleSheet.create({
   barFill: { height: 10, borderRadius: 6, backgroundColor: colors.red, opacity: 0.85 },
   libres: { fontSize: font.small, color: colors.textSoft },
   verMas: { fontSize: font.small, color: colors.sky, fontFamily: fontFamily.medium },
-  quickRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing(5), marginBottom: spacing(2) },
-  quick: { alignItems: 'center', gap: spacing(2), width: '23%' },
-  quickIcon: { width: 58, height: 58, borderRadius: 18, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
-  quickLabel: { fontSize: font.tiny, fontFamily: fontFamily.medium, color: colors.text },
+  quickRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing(4), marginTop: spacing(5), marginBottom: spacing(2) },
+  quick: { alignItems: 'center', gap: spacing(2), width: '18%' },
+  quickIcon: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
+  quickLabel: { fontSize: 10, fontFamily: fontFamily.medium, color: colors.text, textAlign: 'center' },
   facial: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.lg, padding: spacing(4), marginTop: spacing(4) },
   facialTitle: { fontSize: font.body, fontFamily: fontFamily.semibold, color: colors.navyDeep },
   facialSub: { fontSize: font.small, color: '#5A4a1e', marginTop: 2 },

@@ -22,9 +22,12 @@ import argparse
 import threading
 import time
 from datetime import datetime
+from pathlib import Path
 
 import cv2
 import requests
+
+INTERVALO_MIN_ENTRE_FOTOS = 3.0  # segundos; evita guardar el mismo carro parado varias veces seguidas
 
 VERDE = (60, 200, 60)
 ROJO = (50, 50, 230)
@@ -48,14 +51,22 @@ class EstadoLectura:
         self.bbox = None
         self.color = AMBAR
         self.enviando = False
+        self.ultima_foto = 0.0
 
 
-def reconocer_en_hilo(url: str, frame_jpg: bytes, estado: EstadoLectura):
+def reconocer_en_hilo(
+    url: str,
+    frame_jpg: bytes,
+    estado: EstadoLectura,
+    log_path: Path | None,
+    capturas_dir: Path | None,
+):
     hora = datetime.now().strftime("%H:%M:%S")
     try:
         resp = requests.post(
             url,
             files={"image": ("frame.jpg", frame_jpg, "image/jpeg")},
+            data={"skip_fallback": "true"},
             timeout=8,
         )
         resp.raise_for_status()
@@ -64,15 +75,35 @@ def reconocer_en_hilo(url: str, frame_jpg: bytes, estado: EstadoLectura):
         conf = data.get("confidence", 0.0)
         backend = data.get("backend", "?")
         ms = data.get("processing_ms", "?")
+        bbox = data.get("bbox")
+
+        foto_path = None
+        if bbox is not None and capturas_dir is not None:
+            with estado.lock:
+                puede_guardar = (time.time() - estado.ultima_foto) >= INTERVALO_MIN_ENTRE_FOTOS
+                if puede_guardar:
+                    estado.ultima_foto = time.time()
+            if puede_guardar:
+                ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                nombre = f"{ts}_{placa or 'sin_texto'}.jpg"
+                foto_path = capturas_dir / nombre
+                foto_path.write_bytes(frame_jpg)
+
         with estado.lock:
-            estado.bbox = data.get("bbox")
+            estado.bbox = bbox
             estado.color = color_por_confianza(conf)
             if placa:
                 estado.texto = f"{placa}  {conf*100:.0f}%  [{backend}, {ms}ms]"
                 print(f"[{hora}] {placa}  conf={conf*100:.0f}%  backend={backend}  {ms}ms", flush=True)
+                if log_path:
+                    with open(log_path, "a", encoding="utf-8") as f:
+                        f.write(f"{datetime.now().isoformat(timespec='seconds')}  {placa}  conf={conf*100:.0f}%  backend={backend}  {ms}ms\n")
             else:
                 estado.texto = f"sin lectura  (mejor intento {conf*100:.0f}%)"
                 print(f"[{hora}] sin lectura  (mejor intento {conf*100:.0f}%)", flush=True)
+
+        if foto_path:
+            print(f"[{hora}] carro detectado -> foto guardada en {foto_path}", flush=True)
     except requests.RequestException as e:
         with estado.lock:
             estado.texto = f"error llamando al motor de visión: {e}"
@@ -99,10 +130,24 @@ def main():
     parser.add_argument(
         "--interval",
         type=float,
-        default=1.0,
+        default=0.3,
         help="Segundos entre lecturas de placa (el video se ve fluido igual)",
     )
+    parser.add_argument(
+        "--log",
+        default="tools/alpr_live.log",
+        help="Archivo donde se acumulan las placas leídas (una línea por lectura exitosa). Vacío para desactivar.",
+    )
+    parser.add_argument(
+        "--capturas",
+        default="tools/capturas",
+        help="Carpeta donde se guarda una foto cada vez que se detecta un vehículo con placa. Vacío para desactivar.",
+    )
     args = parser.parse_args()
+    log_path = Path(args.log) if args.log else None
+    capturas_dir = Path(args.capturas) if args.capturas else None
+    if capturas_dir:
+        capturas_dir.mkdir(parents=True, exist_ok=True)
 
     if args.source.isdigit():
         # En Windows, abrir por índice sin backend explícito falla en muchos
@@ -119,6 +164,8 @@ def main():
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     print(f"Cámara abierta. Enviando lecturas a {args.url} cada {args.interval}s.")
+    if log_path:
+        print(f"Placas leídas se van acumulando en {log_path.resolve()}")
     print("Presiona 'q' o Esc en la ventana de video para salir.")
 
     estado = EstadoLectura()
@@ -143,7 +190,7 @@ def main():
                         estado.enviando = True
                     threading.Thread(
                         target=reconocer_en_hilo,
-                        args=(args.url, buf.tobytes(), estado),
+                        args=(args.url, buf.tobytes(), estado, log_path, capturas_dir),
                         daemon=True,
                     ).start()
 

@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/demo/:path((?!.*\\.\\w+$).*)", "destination": "/demo/index.html" }
+  ]
+}

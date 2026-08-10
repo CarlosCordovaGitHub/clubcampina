@@ -4,7 +4,7 @@ import time
 
 import cv2
 import numpy as np
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from app.services.ocr_engine import recognize_plate
@@ -28,7 +28,7 @@ class PlateResponse(BaseModel):
 
 
 @router.post("/recognize", response_model=PlateResponse)
-async def recognize(image: UploadFile = File(...)) -> PlateResponse:
+async def recognize(image: UploadFile = File(...), skip_fallback: bool = Form(False)) -> PlateResponse:
     raw = await image.read()
     if not raw:
         raise HTTPException(status_code=400, detail="Imagen vacía")
@@ -48,9 +48,12 @@ async def recognize(image: UploadFile = File(...)) -> PlateResponse:
         from app.services.alpr_engine import recognize_plate_alpr
 
         plate_text, confidence, bbox = recognize_plate_alpr(bgr)
-        if plate_text is None:
+        if plate_text is None and not skip_fallback:
             # El detector no encontró placa legible; EasyOCR a veces rescata
-            # fotos muy cerradas (solo la placa) donde el detector falla.
+            # fotos muy cerradas (solo la placa) donde el detector falla. No
+            # aplica a cuadros de video de una escena completa (sin placa
+            # recortada): ahí es lento y propenso a falsos positivos leyendo
+            # texturas del fondo — por eso el polling en vivo lo desactiva.
             plate_text, confidence, bbox = recognize_plate(preprocess(bgr))
             if plate_text is not None:
                 backend = "easyocr-fallback"

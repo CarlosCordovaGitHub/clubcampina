@@ -28,7 +28,7 @@ export default function Login() {
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.logoWrap}>
             <View style={styles.logoCircle}>
-              <Image source={require('../assets/logo.png')} style={{ width: 88, height: 88 }} resizeMode="contain" />
+              <Image source={require('../assets/logo.png')} style={{ width: 60, height: 60 }} resizeMode="contain" />
             </View>
             <Text style={styles.marca}>La Campiña</Text>
             <Text style={styles.marcaSub}>COUNTRY CLUB</Text>
@@ -98,23 +98,23 @@ const styles = StyleSheet.create({
     borderRadius: 160,
     backgroundColor: 'rgba(0, 120, 192, 0.35)',
   },
-  scroll: { flexGrow: 1, justifyContent: 'center', padding: spacing(6) },
-  logoWrap: { alignItems: 'center', marginBottom: spacing(7) },
+  scroll: { flexGrow: 1, justifyContent: 'center', padding: spacing(5) },
+  logoWrap: { alignItems: 'center', marginBottom: spacing(4) },
   logoCircle: {
-    width: 116,
-    height: 116,
-    borderRadius: 58,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     ...shadow(2),
   },
-  marca: { color: '#fff', fontSize: 26, fontFamily: fontFamily.semibold, marginTop: spacing(4), letterSpacing: 0.3 },
-  marcaSub: { color: colors.gold, fontSize: font.tiny, fontFamily: fontFamily.semibold, letterSpacing: 3, marginTop: 3 },
-  card: { backgroundColor: '#fff', borderRadius: radius.xl, padding: spacing(6), ...shadow(3) },
-  bienvenida: { fontSize: font.h2, fontFamily: fontFamily.semibold, color: colors.text },
-  sub: { fontSize: font.small, color: colors.textSoft, marginTop: 2, marginBottom: spacing(5) },
-  label: { fontSize: font.tiny, fontFamily: fontFamily.medium, color: colors.textSoft, marginBottom: spacing(1.5) },
+  marca: { color: '#fff', fontSize: 21, fontFamily: fontFamily.semibold, marginTop: spacing(2.5), letterSpacing: 0.3 },
+  marcaSub: { color: colors.gold, fontSize: font.tiny, fontFamily: fontFamily.semibold, letterSpacing: 3, marginTop: 2 },
+  card: { backgroundColor: '#fff', borderRadius: radius.xl, padding: spacing(5), ...shadow(3) },
+  bienvenida: { fontSize: font.h3, fontFamily: fontFamily.semibold, color: colors.text },
+  sub: { fontSize: font.small, color: colors.textSoft, marginTop: 2, marginBottom: spacing(3) },
+  label: { fontSize: font.tiny, fontFamily: fontFamily.medium, color: colors.textSoft, marginBottom: spacing(1) },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -124,13 +124,13 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: radius.md,
     paddingHorizontal: spacing(3.5),
-    marginBottom: spacing(3.5),
+    marginBottom: spacing(2.5),
   },
   inputWrapFoco: { borderColor: colors.sky, backgroundColor: '#fff' },
-  input: { flex: 1, paddingVertical: spacing(3.5), fontSize: font.body, color: colors.text, fontFamily: fontFamily.regular },
-  divisorFila: { flexDirection: 'row', alignItems: 'center', gap: spacing(3), marginVertical: spacing(4) },
+  input: { flex: 1, paddingVertical: spacing(2.5), fontSize: font.body, color: colors.text, fontFamily: fontFamily.regular },
+  divisorFila: { flexDirection: 'row', alignItems: 'center', gap: spacing(3), marginVertical: spacing(2.5) },
   divisor: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: colors.line },
   divisorTexto: { fontSize: font.tiny, color: colors.textFaint, fontFamily: fontFamily.medium },
-  olvido: { textAlign: 'center', color: colors.sky, fontFamily: fontFamily.medium, fontSize: font.small, marginTop: spacing(5) },
-  pie: { textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: font.tiny, marginTop: spacing(6) },
+  olvido: { textAlign: 'center', color: colors.sky, fontFamily: fontFamily.medium, fontSize: font.small, marginTop: spacing(3) },
+  pie: { textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: font.tiny, marginTop: spacing(3) },
 });

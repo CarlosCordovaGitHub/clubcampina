@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Especificación Técnica — Sistema de Parqueadero, Control de Acceso y App Móvil de Socios</title>
+<style>
+  :root{
+    --navy:#003a5d;
+    --navy-dark:#00263d;
+    --gold:#c99a3b;
+    --gold-light:#e8c576;
+    --sky:#0078c0;
+    --ink:#1c2b33;
+    --muted:#5b6b74;
+    --paper:#ffffff;
+    --line:#dfe6ea;
+    --bg-soft:#f4f7f9;
+    --mono:"Cascadia Code","Consolas",monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI",Calibri,Arial,sans-serif;
+    color:var(--ink);
+    background:#e9edf0;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{
+    width:210mm;
+    min-height:296mm;
+    margin:14px auto;
+    background:var(--paper);
+    box-shadow:0 4px 18px rgba(0,0,0,0.18);
+    position:relative;
+    padding:16mm 16mm 20mm 16mm;
+    overflow:hidden;
+  }
+  @media print{
+    body{background:#fff;}
+    .page{margin:0;box-shadow:none;page-break-after:always;width:auto;min-height:0;}
+    .page:last-child{page-break-after:auto;}
+  }
+  .brandbar{
+    position:absolute;top:0;left:0;right:0;height:10px;
+    background:linear-gradient(90deg,var(--navy) 0%,var(--sky) 55%,var(--gold) 100%);
+  }
+  .kicker{
+    text-transform:uppercase;letter-spacing:.14em;font-size:10.5px;
+    color:var(--sky);font-weight:700;margin:0 0 4px 0;
+  }
+  h1{font-size:22px;color:var(--navy-dark);margin:0 0 10px 0;line-height:1.25;}
+  h2{
+    font-size:15.5px;color:var(--navy-dark);margin:0 0 10px 0;
+    padding-bottom:6px;border-bottom:2px solid var(--gold);
+    display:flex;align-items:center;gap:8px;
+  }
+  h2 .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;
+    background:var(--navy);color:#fff;font-size:12px;font-weight:700;flex:none;
+  }
+  p{margin:0 0 9px 0;font-size:10.8px;line-height:1.5;color:var(--ink);}
+  .muted{color:var(--muted);}
+  .small{font-size:9.8px;}
+  ul{margin:0 0 9px 0;padding-left:18px;}
+  li{font-size:10.8px;line-height:1.5;margin-bottom:4px;}
+  .section{margin-bottom:14px;}
+  code, .code{
+    font-family:var(--mono);font-size:9.6px;background:#eef2f4;color:#0d3a5c;
+    padding:1px 5px;border-radius:4px;
+  }
+  .pill{
+    display:inline-block;font-size:9px;font-weight:700;letter-spacing:.03em;
+    padding:2px 7px;border-radius:999px;font-family:var(--mono);
+  }
+  .pill.done{background:#e4f3ea;color:#1c7a41;}
+  .pill.pending{background:#fbeee0;color:#a3610a;}
+  .pill.future{background:#eaeef7;color:#3c4d8a;}
+  .pill.h4{background:#f3e8fa;color:#7a3ba3;}
+  table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:10px;}
+  th{
+    text-align:left;background:var(--navy);color:#fff;
+    padding:6px 8px;font-size:9.3px;letter-spacing:.02em;text-transform:uppercase;
+  }
+  td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:nth-child(even) td{background:var(--bg-soft);}
+  .footer-note{
+    position:absolute;bottom:9mm;left:16mm;right:16mm;
+    display:flex;justify-content:space-between;
+    font-size:9px;color:var(--muted);border-top:1px solid var(--line);padding-top:6px;
+  }
+  .logo{width:56px;height:56px;border-radius:12px;object-fit:cover;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+
+  .cover{padding:0;display:flex;flex-direction:column;}
+  .cover-top{
+    background:linear-gradient(160deg,var(--navy-dark) 0%,var(--navy) 55%,var(--sky) 100%);
+    color:#fff;padding:20mm 16mm 26mm 16mm;position:relative;flex:1;
+    display:flex;flex-direction:column;
+  }
+  .cover-top::after{
+    content:"";position:absolute;right:-60px;bottom:-60px;width:260px;height:260px;
+    border-radius:50%;background:rgba(201,154,59,0.18);
+  }
+  .cover-brand{display:flex;align-items:center;gap:14px;margin-bottom:40mm;}
+  .cover-brand .name{font-size:13px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;}
+  .cover-brand .name span{display:block;font-size:10px;letter-spacing:.14em;color:var(--gold-light);font-weight:600;margin-top:2px;}
+  .cover-title{position:relative;z-index:1;}
+  .cover-title .kicker{color:var(--gold-light);}
+  .cover-title h1{color:#fff;font-size:27px;max-width:145mm;margin-bottom:12px;}
+  .cover-title .sub{color:#dbe9f3;font-size:12.5px;max-width:135mm;line-height:1.6;}
+  .cover-bottom{padding:14mm 16mm;display:flex;justify-content:space-between;gap:20px;background:#fff;}
+  .cover-block .label{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;}
+  .cover-block .val{font-size:12.5px;font-weight:700;color:var(--navy-dark);}
+  .cover-block{min-width:0;}
+
+  .diagram{width:100%;margin:6px 0 12px 0;}
+
+  .total-row td{background:var(--navy-dark)!important;color:#fff;font-weight:700;font-size:11.5px;}
+  .total-row td:first-child{border-radius:6px 0 0 6px;}
+  .total-row td:last-child{border-radius:0 6px 6px 0;}
+  .two-col{display:flex;gap:16px;}
+  .two-col > div{flex:1;}
+  .card{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg-soft);}
+  .card h3{margin:0 0 6px 0;font-size:11px;color:var(--navy-dark);font-family:var(--mono);}
+
+  .stack-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+  .stack-item{border:1px solid var(--line);border-radius:8px;padding:8px 9px;background:var(--bg-soft);}
+  .stack-item .svc{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--navy-dark);margin-bottom:2px;}
+  .stack-item .tech{font-size:9px;color:var(--sky);font-weight:600;margin-bottom:4px;}
+  .stack-item p{margin:0;font-size:9.4px;line-height:1.4;color:var(--muted);}
+
+  .toc-list{margin-top:26px;}
+  .toc-item{display:flex;align-items:center;gap:18px;padding:18px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;cursor:pointer;}
+  a.toc-item:hover .toc-title{text-decoration:underline;}
+  .toc-item:first-child{padding-top:0;}
+  .toc-item:last-child{border-bottom:none;}
+  .toc-num{font-size:30px;font-weight:700;color:var(--gold);width:48px;flex:none;text-align:center;font-family:var(--mono);}
+  .toc-body{flex:1;}
+  .toc-title{font-size:14px;font-weight:700;color:var(--navy-dark);margin-bottom:4px;font-family:var(--mono);}
+  .toc-desc{font-size:10.5px;color:var(--muted);}
+  .toc-page{font-size:14px;font-weight:700;color:var(--navy);flex:none;font-family:var(--mono);}
+
+  /* ---------- lectura en celular: sin zoom, una columna ---------- */
+  @media (max-width:720px){
+    body{background:var(--paper);}
+    .page{
+      width:100%;min-height:0;margin:0;box-shadow:none;
+      padding:22px 18px 60px 18px;
+    }
+    .brandbar{height:6px;}
+    .kicker{font-size:11px;}
+    h1{font-size:20px;}
+    h2{font-size:15px;}
+    p, li{font-size:14px;line-height:1.55;}
+    .small{font-size:12px;}
+    code, .code{font-size:11px;}
+    table{font-size:12px;}
+    th, td{padding:6px 7px;}
+    .footer-note{position:static;margin-top:24px;padding-top:10px;}
+    .two-col, .stack-grid{
+      display:flex;flex-direction:column;
+    }
+    .stack-grid > *{width:100%;}
+    .cover-top{padding:14mm 6mm 20mm 6mm;}
+    .cover-brand{margin-bottom:24mm;}
+    .cover-title h1{font-size:24px;max-width:100%;}
+    .cover-title .sub{font-size:12.5px;max-width:100%;}
+    .cover-bottom{flex-direction:column;gap:16px;padding:6mm;}
+    .toc-num{font-size:24px;width:36px;}
+    .toc-title{font-size:13px;}
+    .toc-desc{font-size:10.5px;}
+    table{display:block;overflow-x:auto;white-space:nowrap;}
+    table tr{display:table-row;}
+    table td, table th{white-space:normal;}
+  }
+
+  .back-home{
+    position:fixed;top:16px;left:16px;z-index:50;
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--navy-dark);color:#fff;text-decoration:none;
+    font-size:12px;font-weight:700;padding:9px 16px 9px 12px;border-radius:999px;
+    box-shadow:0 4px 14px rgba(0,20,40,0.28);
+  }
+  .back-home:hover{background:var(--navy);}
+  .back-home svg{width:13px;height:13px;flex:none;}
+  @media print{ .back-home{display:none;} }
+</style>
+</head>
+<body>
+
+<a class="back-home" href="../">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+  Volver al portal
+</a>
+
+<!-- ======================= PÁGINA 1 — PORTADA ======================= -->
+<section class="page cover">
+  <div class="cover-top">
+    <div class="cover-brand">
+      <img class="logo" src="data:image/jpeg;base64,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" alt="Logo">
+      <div class="name">La Campiña Country Club<span>Especificación técnica</span></div>
+    </div>
+    <div class="cover-title">
+      <p class="kicker">Anexo técnico — Parqueadero, Control de Acceso y App Móvil de Socios</p>
+      <h1>Arquitectura, stack tecnológico y plan de implementación de CampiñaAccess</h1>
+      <p class="sub">Documento técnico complementario a la propuesta comercial: arquitectura de microservicios, pipeline de reconocimiento de placas (ALPR), modelo de datos, seguridad, infraestructura física y plan de despliegue.</p>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-block">
+      <div class="label">Presentado por</div>
+      <div class="val">Carlos Córdova</div>
+      <div class="label" style="margin-top:8px;">C.I. / RUC</div>
+      <div class="val">1726603127001</div>
+    </div>
+    <div class="cover-block">
+      <div class="label">Presentado a</div>
+      <div class="val">La Campiña Country Club</div>
+      <div class="label" style="margin-top:8px;">Área</div>
+      <div class="val">Garita, Parqueadero y Membresías</div>
+    </div>
+    <div class="cover-block">
+      <div class="label">Fecha</div>
+      <div class="val">3 de agosto de 2026</div>
+      <div class="label" style="margin-top:8px;">Documento base</div>
+      <div class="val">Propuesta comercial CampiñaAccess</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PÁGINA 2 — ÍNDICE ======================= -->
+<section class="page">
+  <div class="brandbar"></div>
+  <p class="kicker">Índice</p>
+  <h1>Contenido de este documento</h1>
+
+  <div class="toc-list">
+    <a class="toc-item" href="#sec-arquitectura">
+      <div class="toc-num">1</div>
+      <div class="toc-body">
+        <div class="toc-title">Arquitectura y stack</div>
+        <div class="toc-desc">Servicios del monorepo, tecnologías por servicio, comunicación interna y tiempo real.</div>
+      </div>
+      <div class="toc-page">03</div>
+    </a>
+    <a class="toc-item" href="#sec-vision-datos">
+      <div class="toc-num">2</div>
+      <div class="toc-body">
+        <div class="toc-title">Motor de visión y datos</div>
+        <div class="toc-desc">Pipeline de ALPR, contrato de la API de reconocimiento, modelo de datos y endpoints REST.</div>
+      </div>
+      <div class="toc-page">04</div>
+    </a>
+    <a class="toc-item" href="#sec-seguridad-infra">
+      <div class="toc-num">3</div>
+      <div class="toc-body">
+        <div class="toc-title">Seguridad e infraestructura</div>
+        <div class="toc-desc">Autenticación, cifrado, respaldos, despliegue con Docker y equipos físicos de garita.</div>
+      </div>
+      <div class="toc-page">05</div>
+    </a>
+    <a class="toc-item" href="#sec-alcance-inversion">
+      <div class="toc-num">4</div>
+      <div class="toc-body">
+        <div class="toc-title">Alcance, cronograma e inversión</div>
+        <div class="toc-desc">Componentes técnicos por hito, tiempos de entrega y presupuesto.</div>
+      </div>
+      <div class="toc-page">06</div>
+    </a>
+  </div>
+
+  <div class="footer-note">
+    <span>Especificación técnica — La Campiña Country Club</span>
+    <span>Página 2 de 6</span>
+  </div>
+</section>
+
+<!-- ======================= PÁGINA 3 — ARQUITECTURA ======================= -->
+<section class="page" id="sec-arquitectura">
+  <div class="brandbar"></div>
+  <p class="kicker">1. Arquitectura y stack</p>
+  <h1>Servicios, tecnologías y comunicación</h1>
+
+  <p>Monorepo con <code>npm workspaces</code>, sin Nx/Turborepo (no se justifica con 4 servicios en 2 lenguajes). El <strong>motor de visión</strong> (Python) está desacoplado del <strong>motor principal</strong> (Node) y se comunican solo por HTTP interno, para que un pico de OCR nunca bloquee la API de negocio.</p>
+
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="svc">api</div>
+      <div class="tech">NestJS 10 · Prisma · Node 20</div>
+      <p>Motor principal. REST <code>/api/v1</code>, JWT + guards de rol, gateway WebSocket, orquesta al vision-engine.</p>
+    </div>
+    <div class="stack-item">
+      <div class="svc">vision-engine</div>
+      <div class="tech">Python 3.11 · FastAPI</div>
+      <p>Microservicio de OCR/ALPR. Un único endpoint: <code>POST /plate/recognize</code>.</p>
+    </div>
+    <div class="stack-item">
+      <div class="svc">web</div>
+      <div class="tech">React 18 · Vite · TS</div>
+      <p>Panel de garita (SPA). En prod, build estático servido por Nginx.</p>
+    </div>
+    <div class="stack-item">
+      <div class="svc">movil</div>
+      <div class="tech">Expo · React Native · TS</div>
+      <p>CampiñaAccess: app de socios (Android/iOS/web), expo-router.</p>
+    </div>
+    <div class="stack-item">
+      <div class="svc">PostgreSQL 16</div>
+      <div class="tech">Prisma ORM</div>
+      <p>Fuente de verdad. Migraciones versionadas (<code>prisma migrate deploy</code> en el entrypoint).</p>
+    </div>
+    <div class="stack-item">
+      <div class="svc">Redis 7</div>
+      <div class="tech">cache + pub/sub</div>
+      <p>Cache de <code>zona:{id}:estado</code> y backplane de eventos en tiempo real.</p>
+    </div>
+  </div>
+
+  <svg class="diagram" viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg">
+    <rect x="18" y="20" width="200" height="52" rx="10" fill="#ffffff" stroke="#1c2b33" stroke-width="1.5"/>
+    <text x="118" y="42" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1c2b33" font-family="Consolas, monospace">CampiñaAccess</text>
+    <text x="118" y="57" text-anchor="middle" font-size="8.5" fill="#5b6b74" font-family="Segoe UI, Arial">Expo/RN · REST + WebSocket</text>
+
+    <rect x="18" y="146" width="200" height="52" rx="10" fill="#ffffff" stroke="#1c2b33" stroke-width="1.5"/>
+    <text x="118" y="168" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1c2b33" font-family="Consolas, monospace">web (garita)</text>
+    <text x="118" y="183" text-anchor="middle" font-size="8.5" fill="#5b6b74" font-family="Segoe UI, Arial">React/Vite · REST + WebSocket</text>
+
+    <rect x="290" y="72" width="200" height="66" rx="10" fill="#1c2b33"/>
+    <text x="390" y="94" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Consolas, monospace">api (NestJS)</text>
+    <text x="390" y="109" text-anchor="middle" font-size="8.5" fill="#d8dee2" font-family="Segoe UI, Arial">/api/v1 · JWT + guards</text>
+    <text x="390" y="122" text-anchor="middle" font-size="8.5" fill="#d8dee2" font-family="Segoe UI, Arial">gateway WS /monitoreo</text>
+
+    <rect x="560" y="72" width="182" height="66" rx="10" fill="#ffffff" stroke="#1c2b33" stroke-width="2"/>
+    <text x="651" y="94" text-anchor="middle" font-size="11" font-weight="700" fill="#1c2b33" font-family="Consolas, monospace">vision-engine</text>
+    <text x="651" y="109" text-anchor="middle" font-size="8.5" fill="#5b6b74" font-family="Segoe UI, Arial">FastAPI · fast-alpr</text>
+    <text x="651" y="122" text-anchor="middle" font-size="8.5" fill="#5b6b74" font-family="Segoe UI, Arial">fallback: EasyOCR</text>
+
+    <line x1="218" y1="46" x2="290" y2="95" stroke="#8a8a8a" stroke-width="1.5"/>
+    <line x1="218" y1="172" x2="290" y2="118" stroke="#8a8a8a" stroke-width="1.5"/>
+    <line x1="490" y1="105" x2="560" y2="105" stroke="#8a8a8a" stroke-width="1.5"/>
+    <text x="524" y="96" text-anchor="middle" font-size="7.5" fill="#5b6b74" font-family="Consolas, monospace">POST /plate/recognize</text>
+
+    <rect x="330" y="4" width="130" height="28" rx="8" fill="#f4f7f9" stroke="#8a8a8a"/>
+    <text x="395" y="22" text-anchor="middle" font-size="9" fill="#1c2b33" font-family="Consolas, monospace">PostgreSQL 16</text>
+    <line x1="395" y1="32" x2="395" y2="72" stroke="#8a8a8a" stroke-width="1.5"/>
+
+    <rect x="330" y="150" width="130" height="28" rx="8" fill="#f4f7f9" stroke="#8a8a8a"/>
+    <text x="395" y="168" text-anchor="middle" font-size="9" fill="#1c2b33" font-family="Consolas, monospace">Redis 7</text>
+    <line x1="395" y1="138" x2="395" y2="150" stroke="#8a8a8a" stroke-width="1.5"/>
+  </svg>
+
+  <div class="card">
+    <h3>Tiempo real</h3>
+    <ul style="margin-bottom:0;">
+      <li><strong>Socket.io</strong>, namespace <code>/monitoreo</code>, eventos <code>zona.actualizada</code>, <code>evento.nuevo</code>, <code>alerta</code>.</li>
+      <li><strong>Redis</strong> como backplane pub/sub: permite escalar <code>api</code> a varias réplicas sin perder el tiempo real.</li>
+      <li>Elegido sobre SSE por reconexión robusta y soporte de <em>rooms</em>; estándar en el ecosistema NestJS (<code>@nestjs/websockets</code>).</li>
+    </ul>
+  </div>
+
+  <div class="footer-note">
+    <span>Especificación técnica — La Campiña Country Club</span>
+    <span>Página 3 de 6</span>
+  </div>
+</section>
+
+<!-- ======================= PÁGINA 4 — VISIÓN Y DATOS ======================= -->
+<section class="page" id="sec-vision-datos">
+  <div class="brandbar"></div>
+  <p class="kicker">2. Motor de visión y datos</p>
+  <h1>Pipeline de ALPR, modelo de datos y API REST</h1>
+
+  <div class="section">
+    <h2><span class="num">1</span>Pipeline de reconocimiento (ALPR)</h2>
+    <p><strong>Backend por defecto: <code>fast-alpr</code></strong> — detector <code>yolo-v9-t-384</code> (ONNX/CPU) + OCR de matrículas <code>cct-xs-v1</code>, ~30&nbsp;ms por imagen. Se agrega un <strong>padding del 12%</strong> alrededor del bounding box detectado antes de pasar el recorte al OCR (evita que un detector "corto" trunque caracteres del borde). Si el detector no localiza placa, cae automáticamente a <strong>EasyOCR</strong> como respaldo; también puede fijarse como backend único con <code>VISION_BACKEND=easyocr</code>. La confianza reportada por <code>fast-plate-ocr</code> llega por carácter y se promedia. Normalización vía regex configurable — soporta formato ecuatoriano (7 caracteres, ej. <code>ABC1234</code>) y colombiano (6 caracteres); umbral <code>OCR_MIN_CONFIDENCE</code> (default <code>0.35</code>).</p>
+    <table>
+      <tr><th style="width:30%;">Endpoint</th><th>Contrato</th></tr>
+      <tr>
+        <td><code>POST /plate/recognize</code></td>
+        <td>multipart <code>imagen</code> → <code>{ plate_text, confidence, bbox, processing_ms, backend }</code></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">2</span>Modelo de datos (PostgreSQL vía Prisma)</h2>
+    <table>
+      <tr><th style="width:20%;">Entidad</th><th>Campos clave</th></tr>
+      <tr><td><code>Miembro</code></td><td>documento_identidad (único), tipo_membresia, estado → 1:N <code>Vehiculo</code></td></tr>
+      <tr><td><code>Vehiculo</code></td><td>placa (única), marca, modelo, tipo, miembro_id (FK, nullable — soporta visitantes) → 1:N <code>EventoAcceso</code></td></tr>
+      <tr><td><code>ZonaParqueadero</code></td><td>codigo, tipo, estado (libre/ocupada/fuera_de_servicio), vehiculo_actual_id; estado cacheado en Redis, Postgres como fuente de verdad</td></tr>
+      <tr><td><code>EventoAcceso</code></td><td>tipo (ingreso/salida), placa_detectada, confianza_ocr, zona_id, resultado (autorizado/rechazado/alerta), foto_url, timestamp, operador_id</td></tr>
+      <tr><td><code>Visitante</code></td><td>autorización temporal: placa + tiempo máximo (1–24h); barrido cada 5 min publica alerta si excede estadía</td></tr>
+      <tr><td><code>Usuario</code></td><td>email, password_hash, rol (ADMIN / OPERADOR / CONSULTA)</td></tr>
+    </table>
+  </div>
+
+  <div class="section" style="margin-bottom:6px;">
+    <h2><span class="num">3</span>API REST principal (prefijo <code>/api/v1</code>)</h2>
+    <table>
+      <tr><th style="width:34%;">Ruta</th><th>Descripción</th></tr>
+      <tr><td><code>POST /auth/login</code></td><td>Login de operadores/socios → JWT</td></tr>
+      <tr><td><code>CRUD /miembros</code>, <code>/vehiculos</code></td><td>Paginado, búsqueda, validación de formato de placa</td></tr>
+      <tr><td><code>GET/PATCH /zonas</code></td><td>Lee estado de Redis, fallback a Postgres</td></tr>
+      <tr><td><code>POST /eventos-acceso/ingreso</code></td><td>multipart imagen → OCR → decisión → zona → WS</td></tr>
+      <tr><td><code>POST /eventos-acceso/salida</code></td><td>Libera la zona ocupada</td></tr>
+      <tr><td><code>GET /eventos-acceso/export.csv</code></td><td>Exporta historial filtrado</td></tr>
+      <tr><td><code>GET /reportes/resumen?dias=n</code></td><td>KPIs, ingresos por hora local (<code>REPORTES_TZ</code>)</td></tr>
+    </table>
+  </div>
+
+  <div class="footer-note">
+    <span>Especificación técnica — La Campiña Country Club</span>
+    <span>Página 4 de 6</span>
+  </div>
+</section>
+
+<!-- ======================= PÁGINA 5 — SEGURIDAD E INFRA ======================= -->
+<section class="page" id="sec-seguridad-infra">
+  <div class="brandbar"></div>
+  <p class="kicker">3. Seguridad e infraestructura</p>
+  <h1>Autenticación, despliegue y equipos físicos</h1>
+
+  <div class="section">
+    <h2><span class="num">1</span>Seguridad de la aplicación</h2>
+    <ul>
+      <li><strong>JWT + guards de rol</strong>: <code>ADMIN</code> / <code>OPERADOR</code> / <code>CONSULTA</code> en el panel de garita; <code>SOCIO</code> / <code>STAFF</code> en CampiñaAccess.</li>
+      <li><strong>HTTPS end-to-end</strong>: Nginx termina TLS y enruta <code>/api</code>, <code>/uploads</code>, <code>/socket.io</code> a <code>api</code> por red interna.</li>
+      <li><strong>Rate limiting</strong> en <code>/auth/login</code> y en los endpoints de <code>/eventos-acceso</code>.</li>
+      <li><strong>Respaldos automáticos</strong>: <code>pg_dump</code> programado de Postgres + snapshot del volumen <code>uploads/</code> (evidencia fotográfica).</li>
+      <li><strong>Auditoría</strong>: cada <code>EventoAcceso</code> persiste <code>operador_id</code>, <code>timestamp</code> y <code>resultado</code> — trazabilidad completa de ingresos/salidas.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">2</span>Despliegue (Docker)</h2>
+    <p>Cada servicio tiene su <code>Dockerfile</code> multi-stage; <code>docker-compose.prod.yml</code> orquesta el stack completo en una red interna. Único punto expuesto: <code>web</code> (Nginx), que sirve el build de Vite y hace reverse proxy a <code>api</code>. <strong>Healthchecks</strong> + <code>depends_on: condition: service_healthy</code> evitan enrutar tráfico a un servicio aún no listo. La imagen de <code>vision-engine</code> pre-descarga los modelos ONNX en build time para evitar el retraso del primer arranque.</p>
+    <table>
+      <tr><th style="width:26%;">Servicio</th><th>Imagen base</th></tr>
+      <tr><td><code>api</code></td><td><code>node:20-slim</code> — build TS → solo <code>dist/</code> + deps de producción</td></tr>
+      <tr><td><code>vision-engine</code></td><td><code>python:3.11-slim</code> (migrable a <code>-cuda</code> + <code>onnxruntime-gpu</code> si el club dispone de GPU)</td></tr>
+      <tr><td><code>web</code></td><td>build Vite → <code>nginx:alpine</code> (estáticos + reverse proxy)</td></tr>
+    </table>
+  </div>
+
+  <div class="section" style="margin-bottom:6px;">
+    <h2><span class="num">3</span>Equipos físicos e infraestructura de red</h2>
+    <p>Cámaras IP compatibles con <strong>RTSP</strong> en los dos puntos de acceso (entrada principal y nueva salida trasera), barreras/brazos mecánicos con apertura como <strong>evento lógico</strong> (un futuro <code>barrera-driver</code> escucha el pub/sub de Redis: <code>evento.nuevo</code> AUTORIZADO → abrir talanquera) y pantallas informativas. Reutilización de equipos existentes del club tras un barrido técnico, con compra/instalación de lo que falte. <strong>Fuera de este alcance</strong>: postes, suministro eléctrico e internet/red en ambos accesos — infraestructura estructural que provee el club.</p>
+  </div>
+
+  <div class="footer-note">
+    <span>Especificación técnica — La Campiña Country Club</span>
+    <span>Página 5 de 6</span>
+  </div>
+</section>
+
+<!-- ======================= PÁGINA 6 — ALCANCE E INVERSIÓN ======================= -->
+<section class="page" id="sec-alcance-inversion">
+  <div class="brandbar"></div>
+  <p class="kicker">4. Alcance, cronograma e inversión</p>
+  <h1>Componentes técnicos por hito</h1>
+
+  <p class="small muted" style="margin-bottom:10px;">Presupuesto total del club para renovar accesos: USD $120,000. Obra civil (entrada principal + nueva salida trasera): USD $40,000–$60,000, a cargo de un contratista aparte. Este proyecto —CampiñaAccess, backend, ALPR y equipos tecnológicos de ambos accesos— se ajusta al presupuesto restante: USD $60,000–$70,000.</p>
+
+  <table>
+    <tr><th style="width:22%;">Hito</th><th style="width:11%;">%</th><th style="width:15%;">Monto (USD)</th><th>Componentes técnicos</th></tr>
+    <tr>
+      <td>1 — Núcleo + equipos</td>
+      <td>30%</td>
+      <td>$18,000–$21,000</td>
+      <td><code>api</code> (NestJS/Prisma), <code>vision-engine</code> (fast-alpr + EasyOCR fallback), <code>web</code> (panel de garita), migraciones Prisma, JWT + roles, cámaras/barreras/pantallas de ambos accesos (cableado dedicado), <code>docker-compose.prod.yml</code> + healthchecks.</td>
+    </tr>
+    <tr>
+      <td>2 — CampiñaAccess conectada</td>
+      <td>25%</td>
+      <td>$15,000–$17,500</td>
+      <td>App <code>movil</code> (Expo/RN) conectada a <code>api</code>: <code>GET /zonas</code> + WS <code>/monitoreo</code>, login JWT, invitados con QR (autorización temporal + placa).</td>
+    </tr>
+    <tr>
+      <td>3 — Acceso inteligente</td>
+      <td>25%</td>
+      <td>$15,000–$17,500</td>
+      <td>Microservicio de reconocimiento facial (hermano de <code>vision-engine</code>), cliente análogo a <code>vision-client/</code>, piloto en garita.</td>
+    </tr>
+    <tr>
+      <td>4 — Reservas + chatbot</td>
+      <td>20%</td>
+      <td>$12,000–$14,000</td>
+      <td>Módulo de reservas de salones/A&amp;B (nuevas entidades Prisma), integración de chatbot informativo en <code>movil</code>.</td>
+    </tr>
+    <tr class="total-row">
+      <td>Total</td>
+      <td colspan="3">USD $60,000–$70,000 (monto final según barrido de equipos)</td>
+    </tr>
+  </table>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>cronograma.estimado</h3>
+      <ul>
+        <li><strong>Sem. 1–4:</strong> Hito 1</li>
+        <li><strong>Sem. 5–7:</strong> Hito 2</li>
+        <li><strong>Sem. 8–10:</strong> Hito 3</li>
+        <li><strong>Sem. 11–12:</strong> Hito 4</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>supuestos.tecnicos</h3>
+      <ul>
+        <li>Servidor de producción con soporte Docker (propio o cloud).</li>
+        <li>Club provee conectividad/energía en ambos accesos.</li>
+        <li>Cámaras compatibles con protocolo RTSP.</li>
+        <li>Planos y cantidades de plazas confirmados antes del Hito 2.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <span>Especificación técnica — La Campiña Country Club</span>
+    <span>Página 6 de 6</span>
+  </div>
+</section>
+
+</body>
+</html>
