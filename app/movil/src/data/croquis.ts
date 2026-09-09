@@ -1,9 +1,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CROQUIS DEL PARQUEADERO — configuración fiel a la vista aérea del club
-// (parqueaderos.jpg): vía central vertical, bandas en espina de pescado en el
-// bloque TRASERO (junto a canchas de tenis), banda media a la derecha de la vía,
-// y bloque FRONTAL junto a la Casa Club con el lazo de acceso desde la
-// Av. Galo Plaza Lasso (garita = única entrada/salida).
+// CROQUIS DEL PARQUEADERO — plano vertical "desde la garita" (norte = arriba,
+// Av. Galo Plaza Lasso al sur), fiel a la vista aérea de Club Campiña
+// (parqueaderos.jpg + tomas cercanas):
+//   · Vía central que baja desde el norte y curva al este hacia la Casa Club.
+//   · Bloque TRASERO al oeste de la vía: 3 bandas largas en espina de pescado
+//     (A–C) junto a la hilera de canchas de tenis/pádel, 2 bandas cortas (D–E)
+//     más abajo, columna perpendicular (V) pegada a la vía y banda grande (G)
+//     al este de la vía.
+//   · Bloque FRONTAL alrededor de la Casa Club: explanada F, playón de doble
+//     hilera K/L al costado oeste, bahías P del lazo de acceso, motos M en la
+//     garita (única entrada/salida, sobre la Av.).
 //
 // ⚠ CANTIDADES POR CONFIRMAR con el club: para ajustar una banda basta cambiar
 //   su `count` (plazas por fila) aquí. Los códigos (A-01, F-05…) se regeneran
@@ -11,7 +17,7 @@
 //   ZonaParqueadero.codigo ↔ Plaza.codigo (WS zona.actualizada → estado).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const VIEWBOX = { w: 1000, h: 1400 };
+export const VIEWBOX = { w: 1000, h: 1460 };
 
 export type BloquePlaza = 'TRASERO' | 'FRONTAL';
 export type TipoPlaza = 'GENERAL' | 'DISCAPACITADOS' | 'MOTOS';
@@ -33,7 +39,13 @@ export interface Plaza {
   h: number;
 }
 
-type FilaDef = { y: number; ang: number };
+type FilaDef = {
+  y: number;
+  ang: number;
+  /** desplazamiento vertical por columna: hace que la fila "baje" en diagonal
+   *  como las bandas reales de la foto aérea (no perfectamente horizontales) */
+  dyPerCol?: number;
+};
 
 type BandaDef = {
   id: string;
@@ -53,29 +65,35 @@ type BandaDef = {
 const STALL = { w: 18, h: 44 }; // tamaño estándar de plaza en unidades de viewBox
 
 // ── Definición de bandas (AJUSTAR `count` CUANDO EL CLUB CONFIRME CANTIDADES) ──
+// El parqueadero PRINCIPAL es un lote compacto en el centro-norte, al ESTE del
+// gran complejo de canchas de tenis (que ocupa el costado noroeste). Tiene el
+// cuerpo denso en espina de pescado (A–D), la columna perpendicular pegada a la
+// vía (V) y el playón abierto más al este (G). El bloque FRONTAL rodea la Casa
+// Club, al sur, junto a la Av. Galo Plaza Lasso.
 const BANDAS: BandaDef[] = [
-  // Bloque trasero: 3 bandas largas arriba (junto a la cancha de tenis noroeste)
-  { id: 'A', bloque: 'TRASERO', etiqueta: 'Trasero · banda A', x0: 78, pitch: 25, count: 14, filas: [{ y: 158, ang: -26 }, { y: 206, ang: 26 }] },
-  { id: 'B', bloque: 'TRASERO', etiqueta: 'Trasero · banda B', x0: 78, pitch: 25, count: 14, filas: [{ y: 292, ang: -26 }, { y: 340, ang: 26 }] },
-  { id: 'C', bloque: 'TRASERO', etiqueta: 'Trasero · banda C', x0: 78, pitch: 25, count: 14, filas: [{ y: 426, ang: -26 }, { y: 474, ang: 26 }] },
-  // 2 bandas cortas abajo (junto a las canchas de tenis suroeste)
-  { id: 'D', bloque: 'TRASERO', etiqueta: 'Trasero · banda D', x0: 208, pitch: 25, count: 9, filas: [{ y: 560, ang: -26 }, { y: 608, ang: 26 }] },
-  { id: 'E', bloque: 'TRASERO', etiqueta: 'Trasero · banda E', x0: 208, pitch: 25, count: 9, filas: [{ y: 694, ang: -26 }, { y: 742, ang: 26 }] },
-  // Columna pegada a la vía central (lado este)
-  { id: 'V', bloque: 'TRASERO', etiqueta: 'Trasero · junto a la vía', vertical: { x: 527, y0: 262, pitch: 27 }, count: 6 },
-  // Banda media al este de la vía (la que se ve al centro-derecha en la foto)
-  { id: 'G', bloque: 'TRASERO', etiqueta: 'Trasero · banda G', x0: 548, pitch: 25, count: 12, filas: [{ y: 592, ang: -26 }, { y: 640, ang: 26 }] },
+  // ── PARQUEADERO PRINCIPAL (centro-norte, al este del tenis) ─────────────────
+  // Bandas rectas y horizontales (la espina de pescado ±26° es solo la
+  // inclinación de cada plaza dentro de la fila).
+  { id: 'A', bloque: 'TRASERO', etiqueta: 'Principal · banda A', x0: 250, pitch: 24, count: 13, filas: [{ y: 178, ang: -26 }, { y: 222, ang: 26 }] },
+  { id: 'B', bloque: 'TRASERO', etiqueta: 'Principal · banda B', x0: 250, pitch: 24, count: 13, filas: [{ y: 302, ang: -26 }, { y: 346, ang: 26 }] },
+  { id: 'C', bloque: 'TRASERO', etiqueta: 'Principal · banda C', x0: 250, pitch: 24, count: 13, filas: [{ y: 426, ang: -26 }, { y: 470, ang: 26 }] },
+  // Banda inferior, algo más corta
+  { id: 'D', bloque: 'TRASERO', etiqueta: 'Principal · banda D', x0: 276, pitch: 24, count: 11, filas: [{ y: 550, ang: -26 }, { y: 594, ang: 26 }] },
+  // Columna perpendicular pegada a la vía central (borde este del lote)
+  { id: 'V', bloque: 'TRASERO', etiqueta: 'Principal · junto a la vía', vertical: { x: 596, y0: 196, pitch: 27 }, count: 12 },
+  // Playón abierto al este del lote (menos denso, se ve más despejado en la foto)
+  { id: 'G', bloque: 'TRASERO', etiqueta: 'Principal · playón este', x0: 486, pitch: 26, count: 11, filas: [{ y: 712, ang: -24 }, { y: 756, ang: 24 }] },
 
-  // Bloque frontal (Casa Club)
-  { id: 'F', bloque: 'FRONTAL', etiqueta: 'Frontal · Casa Club', x0: 592, pitch: 25, count: 12, filas: [{ y: 1108, ang: -26 }] },
-  { id: 'L', bloque: 'FRONTAL', etiqueta: 'Frontal · costado oeste', vertical: { x: 495, y0: 900, pitch: 27 }, count: 6 },
-  { id: 'M', bloque: 'FRONTAL', etiqueta: 'Frontal · motos (garita)', x0: 700, pitch: 15, count: 6, filas: [{ y: 1204, ang: 0 }], stall: { w: 9, h: 22 }, tipo: 'MOTOS' },
+  // ── BLOQUE FRONTAL (entrada de la Casa Club) ──────────────────────────────
+  // Solo 8 plazas junto a la entrada (no hay parqueadero al costado oeste ni
+  // motos). Dos filas de 4, bien separadas de la garita.
+  { id: 'F', bloque: 'FRONTAL', etiqueta: 'Frontal · entrada Casa Club', x0: 690, pitch: 42, count: 4, filas: [{ y: 1146, ang: -16 }, { y: 1216, ang: 16 }] },
 ];
 
 // Plazas con tipo especial (independiente de su banda)
 const TIPO_OVERRIDE: Record<string, TipoPlaza> = {
-  'F-11': 'DISCAPACITADOS', // las más cercanas a la garita / entrada de Casa Club
-  'F-12': 'DISCAPACITADOS',
+  'F-01': 'DISCAPACITADOS', // las más cercanas a la entrada de la Casa Club
+  'F-02': 'DISCAPACITADOS',
 };
 
 function construirPlazas(): Plaza[] {
@@ -100,7 +118,7 @@ function construirPlazas(): Plaza[] {
           plazas.push({
             codigo, banda: b.id, bloque: b.bloque,
             tipo: TIPO_OVERRIDE[codigo] ?? b.tipo ?? 'GENERAL',
-            x: b.x0! + i * b.pitch!, y: fila.y,
+            x: b.x0! + i * b.pitch!, y: fila.y + i * (fila.dyPerCol ?? 0),
             ang: fila.ang, w: stall.w, h: stall.h,
           });
         }
@@ -129,7 +147,7 @@ function mulberry32(seed: number) {
   };
 }
 
-const FUERA_DE_SERVICIO_FIJAS = ['C-21', 'C-22', 'L-03']; // mantenimiento (demo)
+const FUERA_DE_SERVICIO_FIJAS = ['C-19', 'C-20', 'D-08']; // mantenimiento (demo)
 
 export function estadoInicial(seed = 20260720): Record<string, EstadoPlaza> {
   const rnd = mulberry32(seed);

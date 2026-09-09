@@ -31,8 +31,8 @@ export const COLOR_ESTADO: Record<EstadoPlaza, string> = {
 // foco (cx, cy en coords de viewBox) y escala de cada preset
 const PRESETS: Record<VistaCroquis, { cx: number; cy: number; scale: number }> = {
   TODO: { cx: 500, cy: 700, scale: 1 },
-  TRASERO: { cx: 300, cy: 430, scale: 1.85 },
-  FRONTAL: { cx: 660, cy: 1080, scale: 1.85 },
+  TRASERO: { cx: 400, cy: 400, scale: 1.7 },
+  FRONTAL: { cx: 790, cy: 1200, scale: 1.9 },
 };
 
 const MIN_SCALE = 1;
@@ -353,116 +353,251 @@ const PlazaRect = React.memo(function PlazaRect({
 // ── Paisaje del club (estático) ──────────────────────────────────────────────
 
 function Paisaje() {
+  // viewBox 1000×1460 · vista "desde la garita": norte = arriba, Av. al sur.
   return (
     <G pointerEvents="none">
-      {/* Av. Galo Plaza Lasso */}
-      <Rect x={0} y={1300} width={1000} height={100} fill="#8D99AB" />
-      <Line x1={0} y1={1350} x2={1000} y2={1350} stroke="#FFFFFF" strokeWidth={3} strokeDasharray="26 20" opacity={0.8} />
-      <SvgText x={500} y={1338} fontSize={22} fontWeight="bold" fill="#FFFFFF" textAnchor="middle" opacity={0.9}>
+      {/* ── Av. Galo Plaza Lasso (única salida, al sur) ── */}
+      <Rect x={0} y={1372} width={1000} height={88} fill="#8D99AB" />
+      <Line x1={0} y1={1416} x2={1000} y2={1416} stroke="#FFFFFF" strokeWidth={3} strokeDasharray="26 20" opacity={0.8} />
+      <SvgText x={430} y={1404} fontSize={21} fontWeight="bold" fill="#FFFFFF" textAnchor="middle" opacity={0.9}>
         Av. Galo Plaza Lasso
       </SvgText>
 
-      {/* Vías internas */}
+      {/* ── Vías internas ──
+           · acceso norte al lote principal
+           · CALLE que baja por el costado OESTE de la Casa Club y conecta el
+             parqueadero trasero con la explanada de la entrada
+           · frente de la garita sobre la Av. */}
       <Path
-        d="M 470 110 V 690 Q 470 780 512 860 Q 545 930 545 1005 V 1150"
-        stroke="#D7DEE8" strokeWidth={58} strokeLinecap="round" fill="none"
+        d="M 616 118 V 240 M 560 800 L 560 1082 Q 560 1120 602 1124 L 792 1124"
+        stroke="#D7DEE8" strokeWidth={42} strokeLinecap="round" strokeLinejoin="round" fill="none"
       />
-      <Path d="M 545 1150 H 895" stroke="#D7DEE8" strokeWidth={54} strokeLinecap="round" fill="none" />
-      <Path d="M 872 1150 V 1300" stroke="#D7DEE8" strokeWidth={54} fill="none" />
       <Path
-        d="M 470 130 V 690 Q 470 780 512 860 Q 545 930 545 1005 V 1140"
-        stroke="#FFFFFF" strokeWidth={3} strokeDasharray="16 14" fill="none" opacity={0.75}
+        d="M 560 806 L 560 1082 Q 560 1118 602 1122 L 700 1122"
+        stroke="#FFFFFF" strokeWidth={3} strokeDasharray="16 14" fill="none" opacity={0.7}
       />
-      {/* pasillos de las bandas traseras */}
-      {[247, 381, 515].map((y) => (
-        <Rect key={y} x={62} y={y - 8} width={390} height={16} fill="#D7DEE8" opacity={0.55} rx={8} />
+
+      {/* ── Base de PAVIMENTO del parqueadero principal (todo el lote es asfalto) ── */}
+      {/* una sola figura en "L": cuerpo A–D arriba + playón G abajo-derecha */}
+      <Path
+        d="M 240 150 L 620 150 L 620 542 L 800 542 L 800 802 L 452 802 L 452 640 L 240 640 Z"
+        fill="#C6CDD5" stroke="#C6CDD5" strokeWidth={22} strokeLinejoin="round"
+      />
+
+      {/* pasillos de circulación dentro del lote (líneas de aparcamiento) */}
+      {[
+        [244, 200, 332], [244, 324, 332], [244, 448, 332], [270, 572, 284], [480, 728, 296],
+      ].map(([x, y, w], i) => (
+        <Rect key={i} x={Number(x)} y={Number(y) - 7} width={Number(w)} height={14} rx={7} fill="#EAEEF2" opacity={0.85} />
       ))}
 
-      {/* Canchas de tenis (arcilla) */}
+      {/* ── Gran complejo de canchas de tenis (costado noroeste) ── */}
       <G>
-        <Rect x={40} y={25} width={170} height={88} rx={6} fill="#D9A47C" />
-        <Line x1={125} y1={25} x2={125} y2={113} stroke="#F1DCC8" strokeWidth={3} />
-        <Rect x={40} y={540} width={130} height={110} rx={6} fill="#D9A47C" />
-        <Rect x={40} y={664} width={130} height={110} rx={6} fill="#D9A47C" />
-        <Line x1={40} y1={595} x2={170} y2={595} stroke="#F1DCC8" strokeWidth={3} />
-        <Line x1={40} y1={719} x2={170} y2={719} stroke="#F1DCC8" strokeWidth={3} />
-        <SvgText x={105} y={800} fontSize={17} fontWeight="bold" fill="#8A6A4D" textAnchor="middle">Tenis</SvgText>
-        <SvgText x={125} y={135} fontSize={17} fontWeight="bold" fill="#8A6A4D" textAnchor="middle">Tenis</SvgText>
-      </G>
-
-      {/* Canchas de fútbol */}
-      <G>
-        <Rect x={560} y={55} width={390} height={365} rx={10} fill="#CBE3C6" />
-        <Rect x={600} y={90} width={310} height={295} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.85} />
-        <Line x1={600} y1={237} x2={910} y2={237} stroke="#FFFFFF" strokeWidth={3} opacity={0.85} />
-        <Circle cx={755} cy={237} r={38} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.85} />
-        <SvgText x={755} y={452} fontSize={18} fontWeight="bold" fill="#5E8A57" textAnchor="middle">Canchas de fútbol</SvgText>
-      </G>
-
-      {/* Vóley arena */}
-      <Rect x={848} y={478} width={100} height={90} rx={8} fill="#EAD9B0" />
-      <SvgText x={898} y={590} fontSize={15} fontWeight="bold" fill="#A08A56" textAnchor="middle">Arena</SvgText>
-
-      {/* Coliseo / piscina */}
-      <G>
-        <Rect x={60} y={840} width={290} height={200} rx={10} fill="#F0F3F7" stroke="#C9D4E4" strokeWidth={3} />
-        {[895, 940, 985].map((y) => (
-          <Line key={y} x1={75} y1={y} x2={335} y2={y} stroke="#C9D4E4" strokeWidth={4} />
+        {/* franja de canchas pequeñas arriba */}
+        {[0, 1, 2].map((c) => (
+          <G key={`s${c}`}>
+            <Rect x={30 + c * 66} y={40} width={60} height={92} rx={4} fill="#D9A47C" />
+            <Rect x={30 + c * 66} y={40} width={60} height={92} rx={4} fill="none" stroke="#F1DCC8" strokeWidth={2} />
+            <Line x1={30 + c * 66} y1={86} x2={90 + c * 66} y2={86} stroke="#F1DCC8" strokeWidth={2} opacity={0.7} />
+          </G>
         ))}
-        <SvgText x={205} y={1070} fontSize={17} fontWeight="bold" fill={colors.textSoft} textAnchor="middle">Coliseo · Piscina</SvgText>
+        {/* bloque principal de canchas: 2 columnas × 3 filas */}
+        {Array.from({ length: 6 }).map((_, i) => {
+          const col = i % 2;
+          const row = Math.floor(i / 2);
+          const x = 18 + col * 110;
+          const y = 156 + row * 178;
+          return (
+            <G key={i}>
+              <Rect x={x} y={y} width={104} height={166} rx={5} fill="#D9A47C" />
+              <Rect x={x} y={y} width={104} height={166} rx={5} fill="none" stroke="#F1DCC8" strokeWidth={2.5} />
+              <Line x1={x} y1={y + 83} x2={x + 104} y2={y + 83} stroke="#F1DCC8" strokeWidth={2} opacity={0.8} />
+            </G>
+          );
+        })}
+        <SvgText x={128} y={712} fontSize={16} fontWeight="bold" fill="#8A6A4D" textAnchor="middle">Canchas de tenis</SvgText>
       </G>
 
-      {/* Bohíos */}
-      <Circle cx={165} cy={1150} r={40} fill="#E8E2D8" stroke="#CDBFA8" strokeWidth={3} />
-      <Circle cx={290} cy={1180} r={30} fill="#E8E2D8" stroke="#CDBFA8" strokeWidth={3} />
-
-      {/* Casa Club */}
+      {/* ── Canchas de fútbol / campos abiertos (costado este) ── */}
       <G>
-        <Rect x={575} y={870} width={355} height={215} rx={12} fill="#B5543C" />
-        <Path d="M 575 977 H 930" stroke="#8E3E2C" strokeWidth={5} />
-        <Path d="M 700 870 V 1085 M 815 870 V 1085" stroke="#8E3E2C" strokeWidth={4} opacity={0.7} />
-        <Rect x={640} y={1085} width={220} height={16} fill="#F1E9E0" />
-        <SvgText x={752} y={962} fontSize={22} fontWeight="bold" fill="#FFF3EC" textAnchor="middle">Casa Club</SvgText>
+        <Rect x={648} y={56} width={330} height={470} rx={10} fill="#CBE3C6" />
+        <Rect x={682} y={92} width={262} height={210} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.85} />
+        <Line x1={682} y1={197} x2={944} y2={197} stroke="#FFFFFF" strokeWidth={3} opacity={0.85} />
+        <Circle cx={813} cy={197} r={30} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.85} />
+        <Rect x={682} y={330} width={262} height={166} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.7} />
+        <SvgText x={813} y={508} fontSize={16} fontWeight="bold" fill="#FFFFFF" textAnchor="middle" opacity={0.9}>Canchas de fútbol</SvgText>
       </G>
 
-      {/* Cafetería */}
-      <Rect x={585} y={720} width={72} height={64} rx={8} fill="#F7F3EA" stroke="#D8CBB2" strokeWidth={3} />
-
-      {/* Garita (única entrada / salida) */}
-      <G>
-        <Rect x={905} y={1180} width={46} height={36} rx={6} fill="#FFFFFF" stroke={colors.navy} strokeWidth={3} />
-        <Line x1={845} y1={1188} x2={899} y2={1214} stroke={colors.gold} strokeWidth={6} strokeLinecap="round" />
-        <SvgText x={928} y={1245} fontSize={15} fontWeight="bold" fill={colors.navy} textAnchor="middle">Garita</SvgText>
-      </G>
-
-      {/* Árboles */}
-      {[
-        [100, 220], [95, 330], [105, 435], [360, 790], [420, 1250], [340, 1265],
-        [940, 700], [930, 790], [500, 1245],
-      ].map(([cx, cy], i) => (
-        <Circle key={i} cx={cx} cy={cy} r={16} fill="#A7C8A1" opacity={0.85} />
+      {/* ── Dos canchas de tenis sueltas en el borde este ── */}
+      {[560, 660].map((y, i) => (
+        <G key={i}>
+          <Rect x={906} y={y} width={80} height={88} rx={5} fill="#D9A47C" />
+          <Rect x={906} y={y} width={80} height={88} rx={5} fill="none" stroke="#F1DCC8" strokeWidth={2} />
+          <Line x1={946} y1={y} x2={946} y2={y + 88} stroke="#F1DCC8" strokeWidth={2} opacity={0.7} />
+        </G>
       ))}
 
-      {/* Rótulos de bloques y bandas */}
-      <SvgText x={255} y={112} fontSize={19} fontWeight="bold" fill={colors.navy} opacity={0.55} textAnchor="middle">
-        PARQUEADERO TRASERO
+      {/* ── Coliseo · Piscina ───────────────────────────────────────────────
+           Nave grande de cubierta clara abovedada (piscina cubierta) + edificio
+           anexo de servicios con lucernarios + piscina exterior + dos bohíos de
+           techo cónico + quiosco de teja. */}
+      <G>
+        {/* sombra base del conjunto */}
+        <Rect x={52} y={956} width={356} height={214} rx={18} fill="#00000010" />
+
+        {/* edificio anexo (servicios / gimnasio) */}
+        <Rect x={44} y={934} width={116} height={170} rx={8} fill="#B4BCC6" stroke="#8F98A5" strokeWidth={2.5} />
+        {[[60, 952], [96, 952], [60, 996], [96, 996], [60, 1040], [96, 1040]].map(([x, y], i) => (
+          <Rect key={i} x={Number(x)} y={Number(y)} width={26} height={26} rx={3} fill="#7E8794" />
+        ))}
+
+        {/* nave principal — cubierta abovedada clara */}
+        <Rect x={166} y={944} width={230} height={152} rx={18} fill="#EEF1F5" stroke="#BFC7D2" strokeWidth={3} />
+        <Rect x={166} y={1010} width={230} height={16} rx={6} fill="#FFFFFF" opacity={0.9} />
+        {[966, 986, 1006, 1034, 1054, 1074].map((y) => (
+          <Line key={y} x1={180} y1={y} x2={382} y2={y} stroke="#D3DAE3" strokeWidth={3} />
+        ))}
+        <Rect x={166} y={944} width={12} height={152} rx={4} fill="#DBE1EA" />
+        <Rect x={384} y={944} width={12} height={152} rx={4} fill="#DBE1EA" />
+
+        {/* piscina exterior */}
+        <Rect x={330} y={1108} width={78} height={52} rx={6} fill="#7FB4D8" stroke="#5E93BA" strokeWidth={2.5} />
+        {[1120, 1134, 1148].map((y) => (
+          <Line key={y} x1={336} y1={y} x2={402} y2={y} stroke="#DCEAF4" strokeWidth={2} opacity={0.8} />
+        ))}
+
+        {/* dos bohíos (techo cónico con varillas) */}
+        {[[150, 1152], [252, 1164]].map(([cx, cy], i) => (
+          <G key={i}>
+            <Circle cx={Number(cx)} cy={Number(cy) + 4} r={42} fill="#00000010" />
+            <Circle cx={Number(cx)} cy={Number(cy)} r={42} fill="#CDB68E" stroke="#A98D62" strokeWidth={3} />
+            {Array.from({ length: 12 }).map((_, k) => {
+              const a = (k * Math.PI) / 6;
+              return (
+                <Line
+                  key={k}
+                  x1={Number(cx)}
+                  y1={Number(cy)}
+                  x2={Number(cx) + Math.cos(a) * 42}
+                  y2={Number(cy) + Math.sin(a) * 42}
+                  stroke="#A98D62"
+                  strokeWidth={1.6}
+                  opacity={0.75}
+                />
+              );
+            })}
+            <Circle cx={Number(cx)} cy={Number(cy)} r={5} fill="#8A7050" />
+          </G>
+        ))}
+
+        {/* quiosco de teja (techo naranja a dos aguas) */}
+        <Rect x={318} y={1176} width={62} height={46} rx={6} fill="#C15C3C" stroke="#9E4730" strokeWidth={2.5} />
+        <Line x1={349} y1={1176} x2={349} y2={1222} stroke="#9E4730" strokeWidth={3} />
+
+        <SvgText x={214} y={1252} fontSize={15} fontWeight="bold" fill={colors.textSoft} textAnchor="middle">
+          Coliseo · Piscina
+        </SvgText>
+      </G>
+
+      {/* ── Casa Club: pabellones de techo de teja (cubiertas a cuatro aguas) +
+           ala de servicios gris + porche naranja ── */}
+      <G>
+        {/* ala de servicios (gris, techo plano) al costado oeste */}
+        <Rect x={596} y={912} width={96} height={168} rx={8} fill="#8C949F" stroke="#727A86" strokeWidth={2.5} />
+        {[948, 990, 1032].map((y) => (
+          <Line key={y} x1={606} y1={y} x2={682} y2={y} stroke="#6E7681" strokeWidth={3} opacity={0.7} />
+        ))}
+
+        {/* porche / anexo de teja naranja */}
+        <Rect x={614} y={1060} width={74} height={46} rx={6} fill="#D08A3C" stroke="#A96C24" strokeWidth={2.5} />
+        <Line x1={651} y1={1060} x2={651} y2={1106} stroke="#A96C24" strokeWidth={3} />
+
+        {/* pabellones a cuatro aguas (pirámide con 4 faldones sombreados) */}
+        {[
+          [688, 866, 152, 152],
+          [832, 832, 112, 112],
+          [806, 958, 146, 138],
+          [640, 984, 88, 88],
+        ].map(([x, y, w, h], i) => {
+          const cx = x + w / 2;
+          const cy = y + h / 2;
+          return (
+            <G key={i}>
+              <Rect x={x + 4} y={y + 6} width={w} height={h} rx={6} fill="#00000012" />
+              <Path d={`M ${x} ${y} L ${x + w} ${y} L ${cx} ${cy} Z`} fill="#CB6C4C" />
+              <Path d={`M ${x + w} ${y} L ${x + w} ${y + h} L ${cx} ${cy} Z`} fill="#B85B41" />
+              <Path d={`M ${x + w} ${y + h} L ${x} ${y + h} L ${cx} ${cy} Z`} fill="#9E4A38" />
+              <Path d={`M ${x} ${y + h} L ${x} ${y} L ${cx} ${cy} Z`} fill="#AF553E" />
+              <Path
+                d={`M ${x} ${y} L ${cx} ${cy} L ${x + w} ${y} M ${x + w} ${y + h} L ${cx} ${cy} L ${x} ${y + h}`}
+                stroke="#84392B" strokeWidth={2.5} fill="none" strokeLinejoin="round"
+              />
+              <Rect x={x} y={y} width={w} height={h} rx={6} fill="none" stroke="#84392B" strokeWidth={2} />
+            </G>
+          );
+        })}
+
+        <SvgText x={782} y={946} fontSize={20} fontWeight="bold" fill="#FFF3EC" textAnchor="middle"
+          stroke="#7A3325" strokeWidth={0.6}>
+          Casa Club
+        </SvgText>
+      </G>
+
+      {/* ── ENTRADA: explanada de 8 plazas → garita → acceso abocinado a la Av. ──
+           Se apila de arriba a abajo con separación clara:
+           explanada (2 filas de 4) · garita · calzada con flechas de sentido. */}
+      <G>
+        {/* explanada de las 8 plazas */}
+        <Path
+          d="M 616 1100 L 912 1100 L 912 1256 L 616 1256 Z"
+          fill="#C6CDD5" stroke="#C6CDD5" strokeWidth={16} strokeLinejoin="round"
+        />
+        {/* calzada de acceso, abocinada al llegar a la Av. */}
+        <Path
+          d="M 720 1250 L 824 1250 L 842 1322 C 850 1350 862 1368 876 1384 L 668 1384 C 682 1368 694 1350 702 1322 Z"
+          fill="#C6CDD5" stroke="#C6CDD5" strokeWidth={8} strokeLinejoin="round"
+        />
+
+        {/* garita: caseta sobre la calzada + pluma */}
+        <Rect x={750} y={1268} width={44} height={32} rx={5} fill="#FFFFFF" stroke={colors.navy} strokeWidth={3} />
+        <Line x1={746} y1={1312} x2={800} y2={1320} stroke={colors.gold} strokeWidth={5} strokeLinecap="round" />
+        <SvgText x={772} y={1262} fontSize={13} fontWeight="bold" fill={colors.navy} textAnchor="middle">Garita</SvgText>
+
+        {/* eje de sentidos + flechas (con espacio, debajo de la garita) */}
+        <Line x1={772} y1={1300} x2={772} y2={1380} stroke="#FFFFFF" strokeWidth={3} strokeDasharray="14 12" opacity={0.75} />
+        <Path d="M 744 1372 L 744 1330 M 736 1344 L 744 1330 L 752 1344" stroke="#FFFFFF" strokeWidth={3.5} fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
+        <Path d="M 800 1330 L 800 1372 M 792 1358 L 800 1372 L 808 1358" stroke="#FFFFFF" strokeWidth={3.5} fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
+      </G>
+
+      {/* ── Árboles ── */}
+      {[
+        [252, 150], [430, 640], [300, 720], [430, 720], [560, 736],
+        [640, 640], [960, 540], [430, 1010], [470, 1150], [980, 780],
+      ].map(([cx, cy], i) => (
+        <Circle key={i} cx={cx} cy={cy} r={15} fill="#A7C8A1" opacity={0.85} />
+      ))}
+
+      {/* ── Rótulos de bloques y bandas ── */}
+      <SvgText x={430} y={126} fontSize={19} fontWeight="bold" fill={colors.navy} opacity={0.55} textAnchor="middle">
+        PARQUEADERO PRINCIPAL
       </SvgText>
-      <SvgText x={430} y={1198} fontSize={17} fontWeight="bold" fill={colors.navy} opacity={0.55} textAnchor="middle">
-        P. FRONTAL
+      <SvgText x={862} y={1180} fontSize={13} fontWeight="bold" fill={colors.navy} opacity={0.5} textAnchor="middle">
+        ENTRADA
       </SvgText>
       {[
-        ['A', 44, 188], ['B', 44, 322], ['C', 44, 456], ['D', 176, 590], ['E', 176, 724], ['G', 848, 622],
+        ['A', 232, 206], ['B', 232, 330], ['C', 232, 454], ['D', 258, 578],
+        ['V', 636, 186], ['G', 470, 776],
       ].map(([id, x, y]) => (
-        <SvgText key={String(id)} x={Number(x)} y={Number(y)} fontSize={26} fontWeight="bold" fill={colors.navy} opacity={0.35} textAnchor="middle">
+        <SvgText key={String(id)} x={Number(x)} y={Number(y)} fontSize={22} fontWeight="bold" fill={colors.navy} opacity={0.32} textAnchor="middle">
           {id}
         </SvgText>
       ))}
 
-      {/* Norte aproximado (la foto aérea está rotada) */}
-      <G transform="rotate(-32 935 85)">
-        <Line x1={935} y1={105} x2={935} y2={62} stroke={colors.navy} strokeWidth={4} strokeLinecap="round" opacity={0.6} />
-        <Path d="M 935 52 L 926 70 L 944 70 Z" fill={colors.navy} opacity={0.6} />
-        <SvgText x={935} y={128} fontSize={16} fontWeight="bold" fill={colors.navy} opacity={0.6} textAnchor="middle">N</SvgText>
+      {/* ── Norte aproximado (la vista aérea está rotada) ── */}
+      <G transform="rotate(-30 946 92)">
+        <Line x1={946} y1={112} x2={946} y2={66} stroke={colors.navy} strokeWidth={4} strokeLinecap="round" opacity={0.6} />
+        <Path d="M 946 56 L 937 74 L 955 74 Z" fill={colors.navy} opacity={0.6} />
+        <SvgText x={946} y={134} fontSize={15} fontWeight="bold" fill={colors.navy} opacity={0.6} textAnchor="middle">N</SvgText>
       </G>
     </G>
   );

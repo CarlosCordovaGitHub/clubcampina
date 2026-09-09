@@ -65,10 +65,21 @@ docs/capturas/             capturas de referencia de cada pantalla
 ## El croquis del parqueadero
 
 `CroquisClub` dibuja un mapa SVG **fiel a la vista aérea del club**
-(`parqueaderos.jpg`): bandas traseras A–E en espina de pescado junto a las
-canchas de tenis, columna V y banda G junto a la vía central, bloque frontal
-(fila F de Casa Club, costado L, motos M en garita), Av. Galo Plaza Lasso,
-garita única de entrada/salida, canchas de fútbol, arena, coliseo y bohíos.
+(`parqueaderos.jpg` + tomas cercanas), en vista vertical "desde la garita"
+(norte arriba, Av. Galo Plaza Lasso al sur):
+
+- **Parqueadero principal** (bloque `TRASERO`): lote compacto sobre una plancha
+  de asfalto en "L" — 3 bandas rectas en espina de pescado A–C, banda corta D,
+  columna perpendicular V pegada a la vía y playón abierto G.
+- **Entrada** (bloque `FRONTAL`): explanada con **8 plazas** (2 filas de 4)
+  junto a la Casa Club → **garita** (única entrada/salida) → **calzada de acceso
+  abocinada** hacia la Av. con eje de sentidos y flechas de circulación. No hay
+  parqueadero al costado oeste de la Casa Club (solo la calle que conecta el
+  lote trasero con la explanada).
+- **Paisaje**: gran complejo de canchas de tenis al noroeste, canchas de fútbol
+  al este, Coliseo · Piscina (nave abovedada + anexo + piscina exterior + dos
+  bohíos + quiosco) al suroeste, y la Casa Club como conjunto de pabellones de
+  teja a cuatro aguas.
 
 - **Todo el plano es configuración**: `src/data/croquis.ts` define cada banda
   con su `count` de plazas por fila. ⚠ Las cantidades reales están **por
